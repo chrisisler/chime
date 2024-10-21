@@ -1,0 +1,6 @@
+@ChimeCore_HostAddress = http://localhost:5028
+
+GET {{ChimeCore_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
