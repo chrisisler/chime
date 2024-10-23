@@ -10,7 +10,15 @@ export default function App() {
     <main className="space-y-8 max-w-md mx-auto ">
       <CreateChime />
 
-      <St8View data={chimes} loading={() => <Loading />} error={() => null}>
+      <St8View
+        data={chimes}
+        loading={() => <Loading />}
+        error={() => (
+          <div className="bg-red-500 text-white p-4 rounded-lg shadow-md">
+            <h2 className="font-bold text-lg">Sorry, error loading data!</h2>
+          </div>
+        )}
+      >
         {chimes => (
           <>
             {chimes.map(c => (
@@ -19,6 +27,6 @@ export default function App() {
           </>
         )}
       </St8View>
-    </main >
-  )
+    </main>
+  );
 }

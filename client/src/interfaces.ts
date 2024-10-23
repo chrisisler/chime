@@ -1,7 +1,7 @@
 interface Item {
   id: number;
   by: string;
-  type: "chime" | "comment";
+  type: 'chime' | 'comment';
   text: string;
   byId: number;
   time: number;
@@ -12,9 +12,9 @@ interface Item {
 }
 
 export interface Chime extends Item {
-  type: "chime";
+  type: 'chime';
 }
 
 export interface Comment extends Item {
-  type: "comment";
+  type: 'comment';
 }

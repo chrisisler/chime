@@ -1,7 +1,5 @@
-import { FC } from "react";
+import { FC } from 'react';
 
 export const CreateChime: FC = () => {
-  return (
-    <div />
-  );
+  return <div />;
 };

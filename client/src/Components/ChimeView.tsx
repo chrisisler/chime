@@ -1,9 +1,9 @@
-import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FC, useState } from "react";
+import { faComment, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FC, useState } from 'react';
 
-import { Chime } from "../interfaces"
-import { formatUnix } from "../api";
+import { Chime } from '../interfaces';
+import { formatUnix } from '../api';
 
 export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
   // for now
@@ -23,7 +23,10 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
       <p className="font-medium">{chime.text}</p>
 
       <div className="justify-between flex font-medium">
-        <div className="flex space-x-3 items-center" onClick={() => setLike(b => !!b)}>
+        <div
+          className="flex space-x-3 items-center"
+          onClick={() => setLike(b => !!b)}
+        >
           <FontAwesomeIcon icon={faHeart} />
           <p>{chime.text.length + (liked ? 1 : 0)}</p>
         </div>

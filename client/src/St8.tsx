@@ -2,8 +2,8 @@
  * `St8` provides a structured way to model and manage data states, reducing the likelihood of
  * errors and improving the standardizaiton and maintainability of the code.
  */
-const St8Empty = "St8::Empty" as const;
-const St8Loading = "St8::Loading" as const;
+const St8Empty = 'St8::Empty' as const;
+const St8Loading = 'St8::Loading' as const;
 
 export type St8<T> = typeof St8Empty | typeof St8Loading | Error | T;
 
