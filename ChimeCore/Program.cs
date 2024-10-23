@@ -45,70 +45,68 @@ app.MapGet("/health-check", () =>
 .WithName("HealthCheck")
 .WithOpenApi();
 
-// Endpoints
+var chimesRouter = app.MapGroup("/Chimes");
 
-app.MapGet("/Chimes", async (ApplicationDbContext ctx) =>
-        await ctx.Chimes.ToListAsync()
-    )
-    .WithName("GetAllChimes")
-    .WithOpenApi();
+chimesRouter.MapGet("/", GetAllChimes).WithName("GetAllChimes").WithOpenApi();
+chimesRouter.MapPost("/", CreateChime).WithName("CreateChime").WithOpenApi();
+chimesRouter.MapGet("/{id}", GetChimeById).WithName("GetChimeById").WithOpenApi();
+chimesRouter.MapPut("/{id}", UpdateChime).WithName("UpdateChime").WithOpenApi();
+chimesRouter.MapDelete("/{id}", DeleteChime).WithName("DeleteChime").WithOpenApi();
 
-/* app.MapGet("/Chimes/{username}", async (string username, ApplicationDbContext ctx) => */ 
+/* chimesRouter.MapGet("/{username}", async (string username, ApplicationDbContext ctx) => */
 /*     await ctx.Chimes.Where(_ => _.By.ToLower().Contains(username.ToLower())).ToListAsync()); */
 
-app.MapPost("/Chimes", async (Chime chime, ApplicationDbContext ctx) =>
+static async Task<IResult> GetAllChimes(ApplicationDbContext ctx)
+{
+    return TypedResults.Ok(await ctx.Chimes.ToListAsync());
+}
+
+static async Task<IResult> CreateChime(Chime chime, ApplicationDbContext ctx)
+{
+    ctx.Chimes.Add(chime);
+    await ctx.SaveChangesAsync();
+
+    return TypedResults.Created($"/Chime/{chime.Id}", chime);
+}
+
+static async Task<IResult> GetChimeById(int id, ApplicationDbContext ctx)
+{
+    return await ctx.Chimes.FindAsync(id) is Chime chime
+        ? TypedResults.Ok(chime)
+        : TypedResults.NotFound();
+}
+
+static async Task<IResult> UpdateChime(int id, Chime fields, ApplicationDbContext ctx)
+{
+    var chime = await ctx.Chimes.FindAsync(id);
+    if (chime is null)
     {
-        ctx.Chimes.Add(chime);
-        await ctx.SaveChangesAsync();
+        return TypedResults.NotFound();
+    }
 
-        return Results.Created($"/Chime/{chime.Id}", chime);
-    })
-    .WithName("CreateChime")
-    .WithOpenApi();
+    chime.Text = fields.Text;
+    chime.MediaUrl = fields.MediaUrl;
+    chime.Kids = fields.Kids;
 
-app.MapGet("/Chimes/{id}", async (int id, ApplicationDbContext ctx) =>
-        await ctx.Chimes.FindAsync(id) is Chime chime
-            ? Results.Ok(chime)
-            : Results.NotFound()
-    )
-    .WithName("GetChimeById")
-    .WithOpenApi();
+    // this works? `FindAsync` returns a proxied obj???
+    await ctx.SaveChangesAsync();
 
-app.MapPut("/Chimes/{id}", async (int id, Chime fields, ApplicationDbContext ctx) =>
+    return TypedResults.Ok(chime);
+}
+
+static async Task<IResult> DeleteChime(int id, ApplicationDbContext ctx)
+{
+    var chime = await ctx.Chimes.FindAsync(id);
+    if (chime is null)
     {
-        var chime = await ctx.Chimes.FindAsync(id);
-        if (chime is null)
-        {
-            return Results.NotFound();
-        }
+        return TypedResults.NotFound();
+    }
 
-        chime.Text = fields.Text;
-        chime.MediaUrl = fields.MediaUrl;
-        chime.Kids = fields.Kids;
+    chime.Deleted = true;
 
-        // this works? `FindAsync` returns a proxied obj???
-        await ctx.SaveChangesAsync();
+    await ctx.SaveChangesAsync();
 
-        return Results.Ok(chime);
-    })
-    .WithName("UpdateChime")
-    .WithOpenApi();
-
-app.MapDelete("/Chimes/{id}", async (int id, ApplicationDbContext ctx) =>
-    {
-        var chime = await ctx.Chimes.FindAsync(id);
-        if (chime is null)
-        {
-            return Results.NotFound();
-        }
-
-        chime.Deleted = true;
-
-        await ctx.SaveChangesAsync();
-
-        return Results.NoContent();
-    })
-    .WithName("DeleteChime")
-    .WithOpenApi();
+    return TypedResults.NoContent();
+}
 
 app.Run();

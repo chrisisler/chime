@@ -16,17 +16,19 @@ namespace ChimeCore.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Chime>()
-                .HasKey(_ => _.Id);
-            modelBuilder.Entity<Chime>()
-                .Property(_ => _.Id)
-                .UseIdentityColumn();
+            modelBuilder.Entity<Chime>(entity =>
+            {
+                entity.HasKey(_ => _.Id);
 
-            modelBuilder.Entity<Comment>()
-                .HasKey(_ => _.Id);
-            modelBuilder.Entity<Comment>()
-                .Property(_ => _.Id)
-                .UseIdentityColumn();
+                entity.Property(_ => _.Id).UseIdentityColumn();
+            });
+
+            modelBuilder.Entity<Comment>(entity =>
+            {
+                entity.HasKey(_ => _.Id);
+
+                entity.Property(_ => _.Id).UseIdentityColumn();
+            });
         }
     }
 }
