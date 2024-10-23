@@ -22,12 +22,12 @@ namespace ChimeCore.Models
         /// IDs of the children of the item
         public int[] Kids { get; set; }
         /// URL of attached image, gif, video, etc. if any
-        public string MediaUrl { get; set; }
+        public string? MediaUrl { get; set; }
     }
 
     public class Chime : Item
     {
-        public Chime(string by, int byId, string text, int[] kids, string mediaUrl)
+        public Chime(string by, int byId, string text, int[] kids, string? mediaUrl)
         {
             Deleted = false;
             Type = "chime";
@@ -42,7 +42,7 @@ namespace ChimeCore.Models
 
     public partial class Comment : Item
     {
-        public Comment(string by, int byId, string text, int? parentId, int[] kids, string mediaUrl)
+        public Comment(string by, int byId, string text, int? parentId, int[] kids, string? mediaUrl)
         {
             Deleted = false;
             Type = "comment";
