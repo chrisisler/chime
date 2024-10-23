@@ -1,9 +1,31 @@
+using ChimeCore.Data;
+using ChimeCore.Models;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var connstr = String.Empty;
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.Development.json");
+    connstr = builder.Configuration.GetConnectionString("DefaultConnection");
+}
+else
+{
+    connstr = Environment.GetEnvironmentVariable("DefaultConnection");
+}
+builder.Services.AddDbContext<ApplicationDbContext>(opts =>
+    opts.UseSqlServer(connstr, sqlOpts =>
+    {
+        sqlOpts.EnableRetryOnFailure(maxRetryCount: 3);
+    }),
+    ServiceLifetime.Scoped
+);
 
 var app = builder.Build();
 
@@ -16,29 +38,37 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+app.MapGet("/health-check", () =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    return "hello world!";
 })
-.WithName("GetWeatherForecast")
+.WithName("HealthCheck")
 .WithOpenApi();
 
-app.Run();
+// Endpoints
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+app.MapGet("/Chimes", (ApplicationDbContext ctx) =>
+        ctx.Chimes.ToListAsync()
+    )
+    .WithName("GetChimes")
+    .WithOpenApi();
+
+app.MapPost("/Chimes", (Chime chime, ApplicationDbContext ctx) =>
+    {
+        var entry = ctx.Chimes.Add(chime);
+        ctx.SaveChanges();
+        return Results.Created($"/Chime/{chime.Id}", chime);
+    })
+    .WithName("CreateChime")
+    .WithOpenApi();
+
+app.MapGet("/Chimes/{id}", async (int id, ApplicationDbContext ctx) =>
+        await ctx.Chimes.FindAsync(id) is Chime chime
+            ? Results.Ok(chime)
+            : Results.NotFound()
+    )
+    .WithName("GetChimeById")
+    .WithOpenApi();
+
+
+app.Run();
