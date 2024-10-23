@@ -1,22 +1,44 @@
-import { useState } from 'react'
+import { formatUnix, useChimes } from './api';
+import { CreateChime, Loading } from './components';
+import { St8View } from './St8';
 
 export default function App() {
-  const [count, setCount] = useState(0)
+  const chimes = useChimes();
 
   return (
-    <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <main className="space-y-8 max-w-md mx-auto ">
+      <CreateChime />
+
+      <St8View data={chimes} loading={() => <Loading />} error={() => null}>
+        {chimes => (
+          <>
+            {chimes.map(chime => (
+              <div
+                key={chime.id}
+                className="border-gray-600 rounded-md p-8 border space-y-6"
+              >
+                <div className="flex space-x-4">
+                  <div className="h-12 w-12 rounded-full bg-gray-600" />
+
+                  <div className="-mt-1">
+                    <p className="font-bold text-lg">{chime.by}</p>
+                    <p className="text-gray-600">{formatUnix(chime.time)}</p>
+                  </div>
+                </div>
+
+                <p className="font-medium">{chime.text}</p>
+
+                <div className="justify-between flex font-medium">
+                  <p>15</p>
+                  {chime.kids.length
+                    ? <p>{chime.kids.length}</p>
+                    : null}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+      </St8View>
+    </main >
   )
 }
