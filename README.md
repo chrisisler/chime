@@ -1,8 +1,9 @@
-## <b>Chime<b/>
+## <b>Chime</b>
 
 <b>[Try chime right now. URL coming soon.]</b>
 
 <div align="center">
+
 - A space to share quick thoughts and connect with a community of creators. Express yourself in bite-sized moments!
 - Built with React, .NET, SQL, and Azure services
 - Supports file upload for uploading images, video along with text
