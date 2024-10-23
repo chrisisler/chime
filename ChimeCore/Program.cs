@@ -40,29 +40,30 @@ app.UseHttpsRedirection();
 
 app.MapGet("/health-check", () =>
 {
-    return "hello world!";
+    return TypedResults.Ok("hello world!");
 })
 .WithName("HealthCheck")
 .WithOpenApi();
 
-var chimesRouter = app.MapGroup("/Chimes");
+var chimesRouter = app.MapGroup("/Chimes").WithOpenApi();
 
-chimesRouter.MapGet("/", GetAllChimes).WithName("GetAllChimes").WithOpenApi();
-chimesRouter.MapPost("/", CreateChime).WithName("CreateChime").WithOpenApi();
-chimesRouter.MapGet("/{id}", GetChimeById).WithName("GetChimeById").WithOpenApi();
-chimesRouter.MapPut("/{id}", UpdateChime).WithName("UpdateChime").WithOpenApi();
-chimesRouter.MapDelete("/{id}", DeleteChime).WithName("DeleteChime").WithOpenApi();
+chimesRouter.MapPost("/", CreateChime).WithName("CreateChime");
+chimesRouter.MapGet("/", GetAllChimes).WithName("GetAllChimes");
+chimesRouter.MapGet("/{id}", GetChimeById).WithName("GetChimeById");
+chimesRouter.MapPut("/{id}", UpdateChime).WithName("UpdateChime");
+chimesRouter.MapDelete("/{id}", DeleteChime).WithName("DeleteChime");
 
 /* chimesRouter.MapGet("/{username}", async (string username, ApplicationDbContext ctx) => */
 /*     await ctx.Chimes.Where(_ => _.By.ToLower().Contains(username.ToLower())).ToListAsync()); */
 
 static async Task<IResult> GetAllChimes(ApplicationDbContext ctx)
 {
-    return TypedResults.Ok(await ctx.Chimes.ToListAsync());
+    return TypedResults.Ok(await ctx.Chimes.Where(_ => _.Deleted == false).ToListAsync());
 }
 
-static async Task<IResult> CreateChime(Chime chime, ApplicationDbContext ctx)
+static async Task<IResult> CreateChime(ChimeDTO chimeDTO, ApplicationDbContext ctx)
 {
+    var chime = new Chime(chimeDTO.By, chimeDTO.ById, chimeDTO.Text, chimeDTO.Kids, chimeDTO.MediaUrl);
     ctx.Chimes.Add(chime);
     await ctx.SaveChangesAsync();
 
@@ -71,22 +72,22 @@ static async Task<IResult> CreateChime(Chime chime, ApplicationDbContext ctx)
 
 static async Task<IResult> GetChimeById(int id, ApplicationDbContext ctx)
 {
-    return await ctx.Chimes.FindAsync(id) is Chime chime
+    return await ctx.Chimes.Where(_ => _.Deleted == false && _.Id == id).FirstOrDefaultAsync() is Chime chime
         ? TypedResults.Ok(chime)
-        : TypedResults.NotFound();
+        : TypedResults.NotFound("Failed to find Item with ID: " + id);
 }
 
-static async Task<IResult> UpdateChime(int id, Chime fields, ApplicationDbContext ctx)
+static async Task<IResult> UpdateChime(int id, ChimeDTO chimeDTO, ApplicationDbContext ctx)
 {
     var chime = await ctx.Chimes.FindAsync(id);
     if (chime is null)
     {
-        return TypedResults.NotFound();
+        return TypedResults.NotFound("Failed to find Item with ID: " + id);
     }
 
-    chime.Text = fields.Text;
-    chime.MediaUrl = fields.MediaUrl;
-    chime.Kids = fields.Kids;
+    chime.Text = chimeDTO.Text;
+    chime.MediaUrl = chimeDTO.MediaUrl;
+    chime.Kids = chimeDTO.Kids;
 
     // this works? `FindAsync` returns a proxied obj???
     await ctx.SaveChangesAsync();
@@ -99,7 +100,7 @@ static async Task<IResult> DeleteChime(int id, ApplicationDbContext ctx)
     var chime = await ctx.Chimes.FindAsync(id);
     if (chime is null)
     {
-        return TypedResults.NotFound();
+        return TypedResults.NotFound("Failed to find Item with ID: " + id);
     }
 
     chime.Deleted = true;

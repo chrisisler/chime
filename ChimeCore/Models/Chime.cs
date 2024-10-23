@@ -33,7 +33,8 @@ namespace ChimeCore.Models
             Type = "chime";
             By = by;
             ById = byId;
-            Text = "foo lmfao";
+            Text = Text;
+            Time = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             Kids = kids;
             MediaUrl = mediaUrl;
             ParentId = null; // Chimes don't have a parent
