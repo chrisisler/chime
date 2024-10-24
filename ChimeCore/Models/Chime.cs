@@ -29,15 +29,16 @@ namespace ChimeCore.Models
     {
         public Chime(string by, int byId, string text, int[] kids, string? mediaUrl)
         {
-            Deleted = false;
-            Type = "chime";
             By = by;
             ById = byId;
             Text = text;
-            Time = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             Kids = kids;
             MediaUrl = mediaUrl;
+
+            Time = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             ParentId = null; // Chimes don't have a parent
+            Deleted = false;
+            Type = "chime";
         }
     }
 

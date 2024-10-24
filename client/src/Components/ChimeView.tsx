@@ -10,7 +10,7 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
   const [liked, setLike] = useState(false);
 
   return (
-    <div className="border-gray-600 rounded-md p-8 border space-y-6">
+    <div className="border-gray-600 rounded-md p-8 border space-y-10">
       <div className="flex space-x-4">
         <div className="h-12 w-12 rounded-full bg-gray-600" />
 
@@ -24,11 +24,11 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
 
       <div className="justify-between flex font-medium">
         <div
-          className="flex space-x-3 items-center"
-          onClick={() => setLike(b => !!b)}
+          className="flex space-x-3 items-center hover:cursor-pointer hover:scale-110"
+          onClick={() => setLike(bool => !bool)}
         >
-          <FontAwesomeIcon icon={faHeart} />
-          <p>{chime.text.length + (liked ? 1 : 0)}</p>
+          <FontAwesomeIcon icon={faHeart} className={liked ? 'text-red-500' : ''} />
+          <p>{Number(chime.text.length + (liked ? 1 : 0))}</p>
         </div>
 
         <div className="flex space-x-3 items-center">

@@ -1,5 +1,5 @@
-import { QueryFunctionContext, UseBaseQueryOptions, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { QueryFunctionContext, UseBaseQueryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import axios, { AxiosResponse } from 'axios';
 
 import { St8 } from './St8';
 import { Chime } from './interfaces';
@@ -49,7 +49,7 @@ const api = {
   })
 };
 
-const queries: Record<string, Record<string, UseBaseQueryOptions<any>>> = {
+const queries = {
   chimes: {
     all: {
       queryKey: [null],
@@ -68,6 +68,20 @@ const queries: Record<string, Record<string, UseBaseQueryOptions<any>>> = {
 };
 
 export const useChimes = () => St8.from<Chime[]>(useQuery(queries.chimes.all));
+
+export const useCreateChime = () => {
+  const queryClient = useQueryClient();
+
+  const m = useMutation({
+    mutationFn: (chimeDTO: Pick<Chime, 'by' | 'byId' | 'text' | 'mediaUrl' | 'kids'>) =>
+      api.chimes.post('/', chimeDTO),
+
+    onSuccess: (r: AxiosResponse<Chime>) =>
+      queryClient.setQueryData(queries.chimes.all.queryKey, (_: Chime[]) => _.concat(r.data))
+  });
+
+  return m.mutateAsync;
+};
 
 export const formatUnix = (unixTime: number): string => {
   const now = Math.floor(Date.now() / 1000); // Current time in Unix seconds

@@ -75,7 +75,9 @@ chimesRouter.MapDelete("/{id}", DeleteChime).WithName("DeleteChime");
 
 static async Task<IResult> GetAllChimes(ApplicationDbContext ctx)
 {
-    return TypedResults.Ok(await ctx.Chimes.Where(_ => _.Deleted == false).ToListAsync());
+    return TypedResults.Ok(
+        await ctx.Chimes.Where(_ => _.Deleted == false).OrderByDescending(_ => _.Time).ToListAsync()
+    );
 }
 
 static async Task<IResult> CreateChime(ChimeDTO chimeDTO, ApplicationDbContext ctx)
