@@ -33,7 +33,7 @@ namespace ChimeCore.Models
             Type = "chime";
             By = by;
             ById = byId;
-            Text = Text;
+            Text = text;
             Time = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             Kids = kids;
             MediaUrl = mediaUrl;

@@ -20,6 +20,8 @@ namespace ChimeCore.Data
             {
                 entity.HasKey(_ => _.Id);
 
+                entity.Property(_ => _.Text).IsRequired();
+
                 entity.Property(_ => _.Id).UseIdentityColumn();
             });
 

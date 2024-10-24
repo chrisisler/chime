@@ -1,6 +1,7 @@
 using ChimeCore.Data;
 using ChimeCore.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Cors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,19 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+string[] allowedOrigins = { "http://localhost:5173" };
+
+builder.Services.AddCors(opts =>
+{
+    opts.AddPolicy(
+        "AllowSpecifiedOrigin",
+        builder => builder
+            .WithOrigins(allowedOrigins)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+    );
+});
 
 var connstr = String.Empty;
 if (builder.Environment.IsDevelopment())
@@ -34,7 +48,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseCors("AllowSpecifiedOrigin");
 }
+
 
 app.UseHttpsRedirection();
 

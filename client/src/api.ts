@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
+import { QueryFunctionContext, UseBaseQueryOptions, useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
 import { St8 } from './St8';
 import { Chime } from './interfaces';
@@ -42,11 +43,18 @@ const fakeChimes: Chime[] = [
   },
 ];
 
-const queries = {
+const api = {
+  chimes: axios.create({
+    baseURL: 'http://localhost:5028' + '/Chimes',
+  })
+};
+
+const queries: Record<string, Record<string, UseBaseQueryOptions<any>>> = {
   chimes: {
     all: {
       queryKey: [null],
-      queryFn: () => fakeChimes,
+      queryFn: ({ signal }: QueryFunctionContext) =>
+        api.chimes.get('/', { signal }).then(r => r.data),
     },
     // detail: (id: number) => ({
     //   queryKey: [id],

@@ -2,8 +2,8 @@ import { faComment, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FC, useState } from 'react';
 
-import { Chime } from '../interfaces';
 import { formatUnix } from '../api';
+import { Chime } from '../interfaces';
 
 export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
   // for now
