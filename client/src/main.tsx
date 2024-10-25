@@ -10,20 +10,21 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 2,
+      retry: 1,
       staleTime: 1000 * 60 * 5,
 
       throwOnError: err => {
-        if (isAxiosError(err)) {
-          if (!import.meta.env.PROD) {
+        if (!import.meta.env.PROD) {
+          if (isAxiosError(err)) {
+            console.error(err.response?.data ?? err);
+          } else {
             console.error(err);
           }
-
-          // return err from query as state to feed into St8.error,
-          // propagating UI reflection of error state
-          return false;
         }
-        return true;
+
+        // return err from query as state to feed into St8.error,
+        // propagating UI reflection of error state
+        return false;
       },
     },
   },

@@ -7,8 +7,6 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
-ChimeCore/appsettings*.json
-
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -22,6 +20,8 @@ bin/
 Bin/
 obj/
 Obj/
+
+ChimeCore/appsettings*.json
 
 /wwwroot/dist/
 
