@@ -1,9 +1,13 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUpload } from '@fortawesome/free-solid-svg-icons';
 import { useIsMutating } from '@tanstack/react-query';
-import { FC, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 
 import { useCreateChime } from '../api';
 
 export const CreateChime: FC = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const [chime, setChime] = useState('');
 
   const isMutating = useIsMutating() > 0;
@@ -12,7 +16,6 @@ export const CreateChime: FC = () => {
   // const byId = `${navigator.platform}: ${navigator.userAgent}`;
   const byId = 9001; // TODO authentication
   const by = 'anonymous';
-  const mediaUrl = null; // media support
 
   return (
     <div className="border-gray-600 rounded-md p-8 border space-y-4 mt-8">
@@ -28,17 +31,40 @@ export const CreateChime: FC = () => {
         disabled={isMutating}
       />
 
-      <button
-        className="hover:cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-        disabled={chime.length < 3 || isMutating}
-        onClick={async () => {
-          await createChime({ by, byId, text: chime, kids: [], mediaUrl });
+      <div className="space-x-4 flex items-center">
+        <button
+          className="hover:cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed px-8"
+          disabled={chime.length < 3 || isMutating}
+          onClick={async () => {
+            const f: File | undefined = inputRef.current?.files?.[0];
 
-          setChime('');
-        }}
-      >
-        Post
-      </button>
+            await createChime([{ by, byId, text: chime }, f]);
+
+            setChime('');
+          }}
+        >
+          Post
+        </button>
+
+        <button
+          disabled={isMutating}
+          onClick={() => inputRef.current?.click()}
+          className="space-x-3 hover:cursor-pointer"
+        >
+          <FontAwesomeIcon icon={faUpload} className={chime.length < 3 || isMutating ? 'opacity-30' : ''} />
+        </button>
+
+        {!!inputRef.current && (
+          <p>{inputRef.current.name.slice(0, 50)}</p>
+        )}
+      </div>
+
+      <input
+        type="file"
+        accept="image/*"
+        ref={inputRef}
+        className="hidden"
+      />
     </div>
   );
 };

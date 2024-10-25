@@ -22,6 +22,10 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
 
       <p className="font-medium">{chime.text}</p>
 
+      {chime.mediaUrl && (
+        <img src={chime.mediaUrl} className="w-full rounded-md" alt="" />
+      )}
+
       <div className="justify-between flex font-medium">
         <div
           className="flex space-x-3 items-center hover:cursor-pointer hover:scale-110"

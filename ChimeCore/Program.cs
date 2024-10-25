@@ -1,7 +1,8 @@
 using ChimeCore.Data;
 using ChimeCore.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Cors;
+using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddCors(opts =>
         "AllowSpecifiedOrigin",
         builder => builder
             .WithOrigins(allowedOrigins)
+            /* .AllowAnyOrigin() // testing */
             .AllowAnyMethod()
             .AllowAnyHeader()
     );
@@ -41,6 +43,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(opts =>
     ServiceLifetime.Scoped
 );
 
+builder.Services.AddSingleton<BlobServiceClient>(provider =>
+    {
+        var cfg = provider.GetRequiredService<IConfiguration>();
+        return new BlobServiceClient(cfg["AzureBlobStorage:ConnectionString"]);
+    });
+
+/* builder.Services.AddSingleton<IConfiguration>(provider => */
+/*     { */
+/*         return provider.GetRequiredService<IConfiguration>(); */
+/*     }); */
+
+builder.Services.AddAntiforgery();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -48,10 +63,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-
-    app.UseCors("AllowSpecifiedOrigin");
 }
 
+app.UseCors("AllowSpecifiedOrigin");
+app.UseAntiforgery();
 
 app.UseHttpsRedirection();
 
@@ -62,7 +77,7 @@ app.MapGet("/health-check", () =>
 .WithName("HealthCheck")
 .WithOpenApi();
 
-var chimesRouter = app.MapGroup("/Chimes").WithOpenApi();
+var chimesRouter = app.MapGroup("/Chimes").WithOpenApi().DisableAntiforgery();
 
 chimesRouter.MapPost("/", CreateChime).WithName("CreateChime");
 chimesRouter.MapGet("/", GetAllChimes).WithName("GetAllChimes");
@@ -80,9 +95,42 @@ static async Task<IResult> GetAllChimes(ApplicationDbContext ctx)
     );
 }
 
-static async Task<IResult> CreateChime(ChimeDTO chimeDTO, ApplicationDbContext ctx)
+static async Task<IResult> CreateChime(
+    [FromForm] string by,
+    [FromForm] int byId,
+    [FromForm] string text,
+    IFormFile? file,
+    ApplicationDbContext ctx,
+    BlobServiceClient blobServiceClient,
+    IConfiguration cfg,
+    CancellationToken cancellationToken
+)
 {
-    var chime = new Chime(chimeDTO.By, chimeDTO.ById, chimeDTO.Text, chimeDTO.Kids, chimeDTO.MediaUrl);
+    string? mediaUrl = null;
+
+    // upload and get url from azure storage
+    if (file != null)
+    {
+        var containerName = cfg["AzureBlobStorage:ContainerName"];
+        var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+        await blobContainerClient.CreateIfNotExistsAsync();
+
+        var blobClient = blobContainerClient.GetBlobClient(file.FileName);
+        if (blobClient.CanGenerateSasUri == false)
+        {
+            return TypedResults.BadRequest("Unable to generate URI for file upload");
+        }
+
+        var uri = blobClient.GenerateSasUri(Azure.Storage.Sas.BlobSasPermissions.Read, DateTimeOffset.Now.AddHours(5));
+
+        await blobClient.UploadAsync(file.OpenReadStream(), overwrite: true, cancellationToken);
+
+        mediaUrl = uri.ToString();
+    }
+
+    var chime = new Chime(by, byId, text, kids: [], mediaUrl);
+
     ctx.Chimes.Add(chime);
     await ctx.SaveChangesAsync();
 
@@ -105,7 +153,6 @@ static async Task<IResult> UpdateChime(int id, ChimeDTO chimeDTO, ApplicationDbC
     }
 
     chime.Text = chimeDTO.Text;
-    chime.MediaUrl = chimeDTO.MediaUrl;
     chime.Kids = chimeDTO.Kids;
 
     // this works? `FindAsync` returns a proxied obj???
