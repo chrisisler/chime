@@ -1,8 +1,47 @@
-import { QueryFunctionContext, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import { QueryFunctionContext, UseBaseQueryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import axios, { AxiosResponse } from 'axios';
 
 import { St8 } from './St8';
 import { Chime } from './interfaces';
+
+const fakeChimes: Chime[] = [
+  {
+    id: 1,
+    deleted: false,
+    type: 'chime',
+    by: 'user1',
+    byId: 123,
+    time: Math.floor(Date.now() / 1000), // Current time in Unix Time
+    text: 'This is the first chime.',
+    parentId: 2,
+    mediaUrl: null,
+    kids: [],
+  },
+  {
+    id: 2,
+    deleted: false,
+    type: 'chime',
+    by: 'user2',
+    byId: 456,
+    time: Math.floor(Date.now() / 1000) - 3600, // One hour ago
+    text: 'This is the second chime.',
+    parentId: 2,
+    mediaUrl: null,
+    kids: [10, 3, 2],
+  },
+  {
+    id: 3,
+    deleted: true,
+    type: 'chime',
+    by: 'user3',
+    byId: 789,
+    time: Math.floor(Date.now() / 1000) - 7200, // Two hours ago
+    text: 'This chime has been deleted.',
+    parentId: 2,
+    mediaUrl: null,
+    kids: [4],
+  },
+];
 
 const api = {
   chimes: axios.create({
@@ -17,7 +56,6 @@ const queries = {
       queryFn: ({ signal }: QueryFunctionContext) =>
         api.chimes.get('/', { signal }).then(r => r.data),
     },
-
     // detail: (id: number) => ({
     //   queryKey: [id],
     //   async queryFn() {
@@ -35,15 +73,11 @@ export const useCreateChime = () => {
   const queryClient = useQueryClient();
 
   const m = useMutation({
-    mutationFn: ([chimeDTO, file]: [Pick<Chime, 'by' | 'byId' | 'text'>, File?]) =>
-      api.chimes.postForm('/', { file, ...chimeDTO, }),
+    mutationFn: (chimeDTO: Pick<Chime, 'by' | 'byId' | 'text' | 'mediaUrl' | 'kids'>) =>
+      api.chimes.post('/', chimeDTO),
 
     onSuccess: (r: AxiosResponse<Chime>) =>
-      queryClient.setQueryData(queries.chimes.all.queryKey, (_: Chime[] = []) => _.concat(r.data)),
-
-    onError(err: AxiosError) {
-      console.error(err.response?.data ?? err.message);
-    },
+      queryClient.setQueryData(queries.chimes.all.queryKey, (_: Chime[]) => _.concat(r.data))
   });
 
   return m.mutateAsync;
