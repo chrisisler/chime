@@ -6,7 +6,7 @@ import { FC, useRef, useState } from 'react';
 import { useCreateChime } from '../api';
 
 export const CreateChime: FC = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<null | HTMLInputElement>(null);
 
   const [chime, setChime] = useState('');
 
@@ -41,6 +41,7 @@ export const CreateChime: FC = () => {
             await createChime([{ by, byId, text: chime }, f]);
 
             setChime('');
+            inputRef.current = null;
           }}
         >
           Post

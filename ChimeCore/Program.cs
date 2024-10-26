@@ -108,7 +108,7 @@ static async Task<IResult> CreateChime(
 {
     string? mediaUrl = null;
 
-    // upload and get url from azure storage
+    // upload and get shareable url from azure storage
     if (file != null)
     {
         var containerName = cfg["AzureBlobStorage:ContainerName"];
@@ -117,16 +117,10 @@ static async Task<IResult> CreateChime(
         await blobContainerClient.CreateIfNotExistsAsync();
 
         var blobClient = blobContainerClient.GetBlobClient(file.FileName);
-        if (blobClient.CanGenerateSasUri == false)
-        {
-            return TypedResults.BadRequest("Unable to generate URI for file upload");
-        }
-
-        var uri = blobClient.GenerateSasUri(Azure.Storage.Sas.BlobSasPermissions.Read, DateTimeOffset.Now.AddHours(5));
 
         await blobClient.UploadAsync(file.OpenReadStream(), overwrite: true, cancellationToken);
 
-        mediaUrl = uri.ToString();
+        mediaUrl = blobClient.Uri.ToString();
     }
 
     var chime = new Chime(by, byId, text, kids: [], mediaUrl);
@@ -146,7 +140,7 @@ static async Task<IResult> GetChimeById(int id, ApplicationDbContext ctx)
 
 static async Task<IResult> UpdateChime(int id, ChimeDTO chimeDTO, ApplicationDbContext ctx)
 {
-    var chime = await ctx.Chimes.FindAsync(id);
+    var chime = await ctx.Chimes.SingleOrDefaultAsync(_ => _.Id == id && _.Deleted == false);
     if (chime is null)
     {
         return TypedResults.NotFound("Failed to find Item with ID: " + id);
@@ -155,7 +149,6 @@ static async Task<IResult> UpdateChime(int id, ChimeDTO chimeDTO, ApplicationDbC
     chime.Text = chimeDTO.Text;
     chime.Kids = chimeDTO.Kids;
 
-    // this works? `FindAsync` returns a proxied obj???
     await ctx.SaveChangesAsync();
 
     return TypedResults.Ok(chime);
@@ -163,7 +156,7 @@ static async Task<IResult> UpdateChime(int id, ChimeDTO chimeDTO, ApplicationDbC
 
 static async Task<IResult> DeleteChime(int id, ApplicationDbContext ctx)
 {
-    var chime = await ctx.Chimes.FindAsync(id);
+    var chime = await ctx.Chimes.SingleOrDefaultAsync(_ => _.Id == id && _.Deleted == false);
     if (chime is null)
     {
         return TypedResults.NotFound("Failed to find Item with ID: " + id);

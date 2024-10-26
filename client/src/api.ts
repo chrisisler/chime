@@ -39,7 +39,7 @@ export const useCreateChime = () => {
       api.chimes.postForm('/', { file, ...chimeDTO, }),
 
     onSuccess: (r: AxiosResponse<Chime>) =>
-      queryClient.setQueryData(queries.chimes.all.queryKey, (_: Chime[] = []) => _.concat(r.data)),
+      queryClient.setQueryData(queries.chimes.all.queryKey, (_: Chime[] = []) => [r.data].concat(_)),
 
     onError(err: AxiosError) {
       console.error(err.response?.data ?? err.message);
