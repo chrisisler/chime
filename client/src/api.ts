@@ -16,20 +16,19 @@ const api = {
 const queries = {
   chimes: {
     all: {
-      queryKey: [null],
+      queryKey: ['chimes'],
       queryFn: ({ signal }: QueryFunctionContext) =>
         api.chimes.get('/', { signal }).then(r => r.data),
     },
-    // detail: (id: number) => ({
-    //   queryKey: [id],
-    //   async queryFn() {
-    //     return (await fetch(API_URL + ApiPaths.Games)).json();
-    //   }
+    // findById: (chimeId: Chime['id']) => ({
+    //   queryKey: ['chimes', chimeId],
+    //   queryFn: ({ signal }: QueryFunctionContext) =>
+    //     api.chimes.get(`/${chimeId}`, { signal }).then(r => r.data),
     // })
   },
   comments: {
     all: {
-      queryKey: [null],
+      queryKey: ['comments'],
       queryFn: ({ signal }: QueryFunctionContext) =>
         api.comments.get('/', { signal }).then(r => r.data),
     }
@@ -64,8 +63,8 @@ export const useCreateComment = () => {
     mutationFn: ([commentDTO, file]: [Pick<Comment, 'by' | 'byId' | 'text' | 'parentId'>, File?]) =>
       api.comments.postForm('/', { file, ...commentDTO, }),
 
-    onSuccess: (r: AxiosResponse<Chime>) =>
-      queryClient.setQueryData(queries.comments.all.queryKey, (_: Chime[] = []) => [r.data].concat(_)),
+    onSuccess: (_r: AxiosResponse<Comment>) => 
+      queryClient.invalidateQueries(queries.chimes.all),
 
     onError(err: AxiosError) {
       console.error(err.response?.data ?? err.message);

@@ -54,12 +54,20 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
         </div>
       </div>
 
-      {show && <Show parentId={chime.id} />}
+      {show && <Show chime={chime} />}
+
+      <div className="w-full space-y-4">
+        {chime.kids.map(commentId => (
+          <p key={commentId} className="text-bold">
+            {commentId}
+          </p>
+        ))}
+      </div>
     </div>
   );
 };
 
-const Show: FC<{ parentId: number }> = ({ parentId }) => {
+const Show: FC<{ chime: Chime }> = ({ chime }) => {
   const [comment, setComment] = useState('');
 
   const inputRef = useRef<null | HTMLInputElement>(null);
@@ -70,22 +78,22 @@ const Show: FC<{ parentId: number }> = ({ parentId }) => {
   const byId = 0;
 
   const createComment = useCreateComment();
-   
+
   const postComment = useCallback(async () => {
     await createComment([
-      { by, byId, text: comment, parentId },
+      { by, byId, text: comment, parentId: chime.id },
       inputRef.current?.files?.[0]
     ]);
 
     setComment('');
     inputRef.current = null;
 
-  }, [comment, by, byId, parentId, inputRef]);
+  }, [comment, by, byId, chime.id, inputRef]);
 
   const disabled = comment.length < 3 || isMutating;
 
   return (
-    <div className="flex">
+    <div className="">
       <div className="flex space-x-3 w-full">
         <input
           value={comment}
@@ -109,8 +117,6 @@ const Show: FC<{ parentId: number }> = ({ parentId }) => {
           />
         </button>
       </div>
-
-      {/** how to render item.kids? */}
     </div>
   );
 };

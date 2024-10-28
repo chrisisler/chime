@@ -44,6 +44,11 @@ namespace ChimeCore.Routes
             CancellationToken cancellationToken
         )
         {
+            Chime? chime = await ctx.Chimes.FirstOrDefaultAsync(_ => _.Id == parentId && !_.Deleted);
+            if (chime == null) {
+                return TypedResults.NotFound("No Chime with given ID: " + parentId);
+            }
+
             string? mediaUrl = null;
 
             // upload and get shareable url from azure storage
@@ -64,7 +69,10 @@ namespace ChimeCore.Routes
 
             var comment = new Comment(by, byId, text, parentId, kids: [], mediaUrl);
 
+            chime.Kids = chime.Kids.ToList().Append(comment.Id).ToArray();
+
             ctx.Comments.Add(comment);
+            ctx.Chimes.Update(chime);
             await ctx.SaveChangesAsync();
 
             return TypedResults.Created($"/Comment/{comment.Id}", comment);

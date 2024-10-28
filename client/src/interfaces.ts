@@ -13,8 +13,10 @@ interface Item {
 
 export interface Chime extends Item {
   type: 'chime';
+  parentId: null;
 }
 
 export interface Comment extends Item {
   type: 'comment';
+  parentId: number;
 }
