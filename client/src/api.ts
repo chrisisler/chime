@@ -2,11 +2,14 @@ import { QueryFunctionContext, useMutation, useQuery, useQueryClient } from '@ta
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
 import { St8 } from './St8';
-import { Chime } from './interfaces';
+import { Chime, Comment } from './interfaces';
 
 const api = {
   chimes: axios.create({
     baseURL: 'http://localhost:5028' + '/Chimes',
+  }),
+  comments: axios.create({
+    baseURL: 'http://localhost:5028' + '/Comments',
   })
 };
 
@@ -17,18 +20,23 @@ const queries = {
       queryFn: ({ signal }: QueryFunctionContext) =>
         api.chimes.get('/', { signal }).then(r => r.data),
     },
-
     // detail: (id: number) => ({
     //   queryKey: [id],
     //   async queryFn() {
-    //     const r = await fetch(API_URL + ApiPaths.Games);
-    //     if (!r.ok) throw Error(`${r.status} ${r.statusText}`);
-    //     return r.json();
+    //     return (await fetch(API_URL + ApiPaths.Games)).json();
     //   }
     // })
   },
+  comments: {
+    all: {
+      queryKey: [null],
+      queryFn: ({ signal }: QueryFunctionContext) =>
+        api.comments.get('/', { signal }).then(r => r.data),
+    }
+  }
 };
 
+// export const useComments = () => St8.from<Chime[]>(useQuery(queries.chimes.all));
 export const useChimes = () => St8.from<Chime[]>(useQuery(queries.chimes.all));
 
 export const useCreateChime = () => {
@@ -40,6 +48,24 @@ export const useCreateChime = () => {
 
     onSuccess: (r: AxiosResponse<Chime>) =>
       queryClient.setQueryData(queries.chimes.all.queryKey, (_: Chime[] = []) => [r.data].concat(_)),
+
+    onError(err: AxiosError) {
+      console.error(err.response?.data ?? err.message);
+    },
+  });
+
+  return m.mutateAsync;
+};
+
+export const useCreateComment = () => {
+  const queryClient = useQueryClient();
+
+  const m = useMutation({
+    mutationFn: ([commentDTO, file]: [Pick<Comment, 'by' | 'byId' | 'text' | 'parentId'>, File?]) =>
+      api.comments.postForm('/', { file, ...commentDTO, }),
+
+    onSuccess: (r: AxiosResponse<Chime>) =>
+      queryClient.setQueryData(queries.comments.all.queryKey, (_: Chime[] = []) => [r.data].concat(_)),
 
     onError(err: AxiosError) {
       console.error(err.response?.data ?? err.message);

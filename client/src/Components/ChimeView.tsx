@@ -1,11 +1,18 @@
-import { faComment, faHeart } from '@fortawesome/free-solid-svg-icons';
+import {
+  faComment,
+  faHeart,
+  faMessage,
+  faPaperclip,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FC, useState } from 'react';
+import { useIsMutating } from '@tanstack/react-query';
+import { FC, useCallback, useRef, useState } from 'react';
 
-import { formatUnix } from '../api';
+import { formatUnix, useCreateComment } from '../api';
 import { Chime } from '../interfaces';
 
 export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
+  const [show, setShow] = useState(false);
   // for now
   const [liked, setLike] = useState(false);
 
@@ -31,15 +38,79 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
           className="flex space-x-3 items-center hover:cursor-pointer hover:scale-110"
           onClick={() => setLike(bool => !bool)}
         >
-          <FontAwesomeIcon icon={faHeart} className={liked ? 'text-red-500' : ''} />
+          <FontAwesomeIcon
+            icon={faHeart}
+            className={liked ? 'text-red-500' : ''}
+          />
           <p>{Number(chime.text.length + (liked ? 1 : 0))}</p>
         </div>
 
-        <div className="flex space-x-3 items-center">
+        <div
+          className="flex space-x-3 items-center cursor-pointer hover:scale-110"
+          onClick={() => setShow(bool => !bool)}
+        >
           <FontAwesomeIcon icon={faComment} />
           <p>{chime.kids.length}</p>
         </div>
       </div>
+
+      {show && <Show parentId={chime.id} />}
+    </div>
+  );
+};
+
+const Show: FC<{ parentId: number }> = ({ parentId }) => {
+  const [comment, setComment] = useState('');
+
+  const inputRef = useRef<null | HTMLInputElement>(null);
+
+  const isMutating = useIsMutating() > 0;
+
+  const by = "anonymous-commenter-dev";
+  const byId = 0;
+
+  const createComment = useCreateComment();
+   
+  const postComment = useCallback(async () => {
+    await createComment([
+      { by, byId, text: comment, parentId },
+      inputRef.current?.files?.[0]
+    ]);
+
+    setComment('');
+    inputRef.current = null;
+
+  }, [comment, by, byId, parentId, inputRef]);
+
+  const disabled = comment.length < 3 || isMutating;
+
+  return (
+    <div className="flex">
+      <div className="flex space-x-3 w-full">
+        <input
+          value={comment}
+          onChange={event => setComment(event.target.value)}
+          className="rounded-lg p-4 w-full"
+          placeholder="Add a comment..."
+        />
+
+        <button onClick={() => inputRef.current?.click()} disabled={disabled} className="hover:cursor-pointer">
+          <FontAwesomeIcon
+            icon={faPaperclip}
+            className={disabled ? 'opacity-30' : ''}
+          />
+        </button>
+        <input type="file" accept="image/*" ref={inputRef} className="hidden" />
+
+        <button onClick={postComment} disabled={disabled}>
+          <FontAwesomeIcon
+            icon={faMessage}
+            className={disabled ? 'opacity-30' : ''}
+          />
+        </button>
+      </div>
+
+      {/** how to render item.kids? */}
     </div>
   );
 };

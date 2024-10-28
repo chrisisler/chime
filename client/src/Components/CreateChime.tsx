@@ -52,20 +52,16 @@ export const CreateChime: FC = () => {
           onClick={() => inputRef.current?.click()}
           className="space-x-3 hover:cursor-pointer"
         >
-          <FontAwesomeIcon icon={faUpload} className={chime.length < 3 || isMutating ? 'opacity-30' : ''} />
+          <FontAwesomeIcon
+            icon={faUpload}
+            className={chime.length < 3 || isMutating ? 'opacity-30' : ''}
+          />
         </button>
 
-        {!!inputRef.current && (
-          <p>{inputRef.current.name.slice(0, 50)}</p>
-        )}
+        {!!inputRef.current && <p>{inputRef.current.name.slice(0, 50)}</p>}
       </div>
 
-      <input
-        type="file"
-        accept="image/*"
-        ref={inputRef}
-        className="hidden"
-      />
+      <input type="file" accept="image/*" ref={inputRef} className="hidden" />
     </div>
   );
 };

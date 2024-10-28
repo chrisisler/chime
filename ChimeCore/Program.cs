@@ -70,6 +70,7 @@ app.UseAntiforgery();
 app.UseHttpsRedirection();
 
 app.MapChimesRoutes();
+app.MapCommentsRoutes();
 
 app.MapGet("/health-check", () =>
 {

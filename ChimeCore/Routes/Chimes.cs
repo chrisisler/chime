@@ -73,7 +73,7 @@ namespace ChimeCore.Routes
 
             static async Task<IResult> UpdateChime(int id, ChimeDTO chimeDTO, ApplicationDbContext ctx)
             {
-                var chime = await ctx.Chimes.SingleOrDefaultAsync(_ => _.Id == id && _.Deleted == false);
+                var chime = await ctx.Chimes.FirstOrDefaultAsync(_ => _.Id == id && _.Deleted == false);
                 if (chime is null)
                 {
                     return TypedResults.NotFound("Failed to find Item with ID: " + id);
@@ -89,7 +89,7 @@ namespace ChimeCore.Routes
 
             static async Task<IResult> DeleteChime(int id, ApplicationDbContext ctx)
             {
-                var chime = await ctx.Chimes.SingleOrDefaultAsync(_ => _.Id == id && _.Deleted == false);
+                var chime = await ctx.Chimes.FirstOrDefaultAsync(_ => _.Id == id && _.Deleted == false);
                 if (chime is null)
                 {
                     return TypedResults.NotFound("Failed to find Item with ID: " + id);
