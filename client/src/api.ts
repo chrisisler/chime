@@ -2,73 +2,46 @@ import { QueryFunctionContext, useMutation, useQuery, useQueryClient } from '@ta
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
 import { St8 } from './St8';
-import { Chime, Comment } from './interfaces';
+import { Item } from './interfaces';
 
 const api = {
-  chimes: axios.create({
-    baseURL: 'http://localhost:5028' + '/Chimes',
+  items: axios.create({
+    baseURL: 'http://localhost:5028' + '/v0/Items',
   }),
-  comments: axios.create({
-    baseURL: 'http://localhost:5028' + '/Comments',
-  })
 };
 
 const queries = {
-  chimes: {
+  items: {
     all: {
-      queryKey: ['chimes'],
+      queryKey: ['items'],
       queryFn: ({ signal }: QueryFunctionContext) =>
-        api.chimes.get('/', { signal }).then(r => r.data),
+        api.items.get('/', { signal }).then(r => r.data),
     },
-    // findById: (chimeId: Chime['id']) => ({
-    //   queryKey: ['chimes', chimeId],
+    // findById: (id: number) => ({
+    //   queryKey: ['items', id],
     //   queryFn: ({ signal }: QueryFunctionContext) =>
-    //     api.chimes.get(`/${chimeId}`, { signal }).then(r => r.data),
+    //     api.items.get(`/${id}`, { signal }).then(r => r.data),
     // })
   },
-  comments: {
-    all: {
-      queryKey: ['comments'],
-      queryFn: ({ signal }: QueryFunctionContext) =>
-        api.comments.get('/', { signal }).then(r => r.data),
-    }
-  }
 };
 
-export const useComments = () => St8.from<Comment[]>(useQuery(queries.comments.all));
-export const useChimes = () => St8.from<Chime[]>(useQuery(queries.chimes.all));
+export const useItems = () => St8.from<Item[]>(useQuery(queries.items.all));
 
-export const useCreateChime = () => {
+// technically providing diff args for diff use cases
+// of this function means it ought to be split into to,
+// especially from an arity standpoint
+export const useCreateItem = () => {
   const queryClient = useQueryClient();
 
   const m = useMutation({
-    mutationFn: ([chimeDTO, file]: [Pick<Chime, 'by' | 'byId' | 'text'>, File?]) =>
-      api.chimes.postForm('/', { file, ...chimeDTO, }),
+    /**
+     * `type` info communicated via presence of `parentId` field
+     */
+    mutationFn: ([itemDTO, file]: [Pick<Item, 'by' | 'byId' | 'text' | 'parentId'>, File?]) =>
+      api.items.postForm('/', { file, ...itemDTO, }),
 
-    onSuccess: (r: AxiosResponse<Chime>) =>
-      queryClient.setQueryData(queries.chimes.all.queryKey, (_: Chime[] = []) => [r.data].concat(_)),
-
-    onError(err: AxiosError) {
-      console.error(err.response?.data ?? err.message);
-    },
-  });
-
-  return m.mutateAsync;
-};
-
-export const useCreateComment = () => {
-  const queryClient = useQueryClient();
-
-  const m = useMutation({
-    mutationFn: ([commentDTO, file]: [Pick<Comment, 'by' | 'byId' | 'text' | 'parentId'>, File?]) =>
-      api.comments.postForm('/', { file, ...commentDTO, }),
-
-    onSuccess: async (r: AxiosResponse<Comment>) => {
-      await queryClient.invalidateQueries(queries.chimes.all);
-
-      return queryClient.setQueryData(queries.comments.all.queryKey, (_: Comment[] = []) => [r.data].concat(_));
-    },
-
+    onSuccess: (_: AxiosResponse<Item>) =>
+      queryClient.invalidateQueries(queries.items.all),
 
     onError(err: AxiosError) {
       console.error(err.response?.data ?? err.message);

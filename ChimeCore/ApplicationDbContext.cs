@@ -11,23 +11,15 @@ namespace ChimeCore.Data
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> opts) : base(opts) { }
 
-        public DbSet<Chime> Chimes { get; set; }
-        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Item> Items { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Chime>(entity =>
+            modelBuilder.Entity<Item>(entity =>
             {
                 entity.HasKey(_ => _.Id);
 
                 entity.Property(_ => _.Text).IsRequired();
-
-                entity.Property(_ => _.Id).UseIdentityColumn();
-            });
-
-            modelBuilder.Entity<Comment>(entity =>
-            {
-                entity.HasKey(_ => _.Id);
 
                 entity.Property(_ => _.Id).UseIdentityColumn();
             });

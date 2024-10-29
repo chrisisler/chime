@@ -25,7 +25,7 @@ namespace ChimeCore.Models
         public string? MediaUrl { get; set; }
     }
 
-    public class Chime : Item
+    public partial class Chime : Item
     {
         public Chime(string by, int byId, string text, int[] kids, string? mediaUrl)
         {
@@ -35,8 +35,8 @@ namespace ChimeCore.Models
             Kids = kids;
             MediaUrl = mediaUrl;
 
-            Time = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             ParentId = null; // Chimes don't have a parent
+            Time = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             Deleted = false;
             Type = "chime";
         }
@@ -46,15 +46,16 @@ namespace ChimeCore.Models
     {
         public Comment(string by, int byId, string text, int? parentId, int[] kids, string? mediaUrl)
         {
-            Deleted = false;
-            Type = "comment";
             By = by;
             ById = byId;
-            Time = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             Text = text;
             Kids = kids;
             MediaUrl = mediaUrl;
+
             ParentId = parentId;
+            Time = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            Deleted = false;
+            Type = "comment";
         }
     }
 }

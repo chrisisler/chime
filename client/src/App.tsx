@@ -1,9 +1,10 @@
-import { useChimes } from './api';
+import { useItems } from './api';
 import { CreateChime, Loading, ChimeView } from './components';
-import { St8View } from './St8';
+import { Item } from './interfaces';
+import { St8, St8View } from './St8';
 
 export default function App() {
-  const chimes = useChimes();
+  const chimes = St8.map(useItems(), items => items.filter(Item.isChime));
 
   return (
     <main className="space-y-8 max-w-md mx-auto ">
@@ -20,9 +21,12 @@ export default function App() {
       >
         {chimes => (
           <>
-            {chimes.map(c => (
-              <ChimeView key={c.id} chime={c} />
-            ))}
+            {chimes.length > 0
+              ? chimes.map(c => (
+                <ChimeView key={c.id} chime={c} />
+              ))
+              : <p className="text-center">No Chimes :(</p>
+            }
           </>
         )}
       </St8View>

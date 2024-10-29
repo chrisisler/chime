@@ -8,8 +8,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useIsMutating } from '@tanstack/react-query';
 import { FC, useCallback, useRef, useState } from 'react';
 
-import { formatUnix, useComments, useCreateComment } from '../api';
-import { Chime } from '../interfaces';
+import { formatUnix, useCreateItem, useItems, } from '../api';
+import { Chime, Comment } from '../interfaces';
 import { St8, St8View } from '../St8';
 import { Loading } from './Loading';
 
@@ -18,8 +18,10 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
   // for now
   const [liked, setLike] = useState(false);
 
-  const comments =
-    St8.map(useComments(), _ => _.filter(comment => chime.kids.includes(comment.id)));
+  const comments = St8.map(
+    useItems(),
+    items => items.filter((_): _ is Comment => _.type == "comment" && chime.kids.includes(_.id))
+  );
 
   return (
     <div className="border-gray-600 rounded-md p-8 border space-y-10">
@@ -90,10 +92,10 @@ const Show: FC<{ chime: Chime }> = ({ chime }) => {
   const by = 'anonymous-commenter-dev';
   const byId = 0;
 
-  const createComment = useCreateComment();
+  const createItem = useCreateItem();
 
   const postComment = useCallback(async () => {
-    await createComment([
+    await createItem([
       { by, byId, text: comment, parentId: chime.id },
       inputRef.current?.files?.[0],
     ]);
@@ -105,34 +107,33 @@ const Show: FC<{ chime: Chime }> = ({ chime }) => {
   const disabled = comment.length < 3 || isMutating;
 
   return (
-    <div className="">
-      <div className="flex space-x-3 w-full">
-        <input
-          value={comment}
-          onChange={event => setComment(event.target.value)}
-          className="rounded-lg p-4 w-full"
-          placeholder="Add a comment..."
+    <div className="flex space-x-3 w-full">
+      <input
+        autoFocus
+        value={comment}
+        onChange={event => setComment(event.target.value)}
+        className="rounded-lg p-4 w-full"
+        placeholder="Add a comment..."
+      />
+
+      <button onClick={postComment} disabled={disabled}>
+        <FontAwesomeIcon
+          icon={faMessage}
+          className={disabled ? 'opacity-30' : ''}
         />
+      </button>
 
-        <button
-          onClick={() => inputRef.current?.click()}
-          disabled={disabled}
-          className="hover:cursor-pointer"
-        >
-          <FontAwesomeIcon
-            icon={faPaperclip}
-            className={disabled ? 'opacity-30' : ''}
-          />
-        </button>
-        <input type="file" accept="image/*" ref={inputRef} className="hidden" />
-
-        <button onClick={postComment} disabled={disabled}>
-          <FontAwesomeIcon
-            icon={faMessage}
-            className={disabled ? 'opacity-30' : ''}
-          />
-        </button>
-      </div>
+      <button
+        onClick={() => inputRef.current?.click()}
+        disabled={disabled}
+        className="hover:cursor-pointer"
+      >
+        <FontAwesomeIcon
+          icon={faPaperclip}
+          className={disabled ? 'opacity-30' : ''}
+        />
+      </button>
+      <input type="file" accept="image/*" ref={inputRef} className="hidden" />
     </div>
   );
 };

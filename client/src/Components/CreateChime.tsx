@@ -3,7 +3,7 @@ import { faUpload } from '@fortawesome/free-solid-svg-icons';
 import { useIsMutating } from '@tanstack/react-query';
 import { FC, useRef, useState } from 'react';
 
-import { useCreateChime } from '../api';
+import { useCreateItem } from '../api';
 
 export const CreateChime: FC = () => {
   const inputRef = useRef<null | HTMLInputElement>(null);
@@ -11,7 +11,7 @@ export const CreateChime: FC = () => {
   const [chime, setChime] = useState('');
 
   const isMutating = useIsMutating() > 0;
-  const createChime = useCreateChime();
+  const createItem = useCreateItem();
 
   // const byId = `${navigator.platform}: ${navigator.userAgent}`;
   const byId = 9001; // TODO authentication
@@ -19,6 +19,8 @@ export const CreateChime: FC = () => {
 
   return (
     <div className="border-gray-600 rounded-md p-8 border space-y-4 mt-8">
+      <input type="file" accept="image/*" ref={inputRef} className="hidden" />
+
       <p className="text-2xl font-extrabold mb-4">Create Chime</p>
 
       <textarea
@@ -38,7 +40,7 @@ export const CreateChime: FC = () => {
           onClick={async () => {
             const f: File | undefined = inputRef.current?.files?.[0];
 
-            await createChime([{ by, byId, text: chime }, f]);
+            await createItem([{ by, byId, text: chime, parentId: null }, f]);
 
             setChime('');
             inputRef.current = null;
@@ -49,7 +51,9 @@ export const CreateChime: FC = () => {
 
         <button
           disabled={isMutating}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => {
+            inputRef.current?.click();
+          }}
           className="space-x-3 hover:cursor-pointer"
         >
           <FontAwesomeIcon
@@ -61,7 +65,6 @@ export const CreateChime: FC = () => {
         {!!inputRef.current && <p>{inputRef.current.name.slice(0, 50)}</p>}
       </div>
 
-      <input type="file" accept="image/*" ref={inputRef} className="hidden" />
     </div>
   );
 };
