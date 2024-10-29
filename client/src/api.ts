@@ -51,20 +51,25 @@ export const useCreateItem = () => {
   return m.mutateAsync;
 };
 
-export const formatUnix = (unixTime: number): string => {
+export const formatUnix = (unixTime: number, short = false): string => {
   const now = Math.floor(Date.now() / 1000); // Current time in Unix seconds
   const diffInSeconds = now - unixTime;
 
+  const ago = short ? '' : ' ago';
+
   if (diffInSeconds < 60) {
-    return `${diffInSeconds}s ago`;
+    return `${diffInSeconds}s${ago}`;
   } else if (diffInSeconds < 3600) {
     const minutes = Math.floor(diffInSeconds / 60);
-    return `${minutes}m ago`;
+    return `${minutes}m${ago}`;
   } else if (diffInSeconds < 86400) {
     const hours = Math.floor(diffInSeconds / 3600);
-    return `${hours}h ago`;
-  } else {
+    return `${hours}h${ago}`;
+  } else if (diffInSeconds < 2592000) {
     const days = Math.floor(diffInSeconds / 86400);
-    return `${days}d ago`;
+    return `${days}d${ago}`;
+  } else {
+    const months = Math.floor(diffInSeconds / 2592000);
+    return `${months}mo${ago}`;
   }
 };

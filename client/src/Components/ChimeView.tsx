@@ -37,7 +37,7 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
       <p className="font-medium">{chime.text}</p>
 
       {chime.mediaUrl && (
-        <img src={chime.mediaUrl} className="w-full rounded-md" alt="" />
+        <img src={chime.mediaUrl} className="w-full rounded-md" alt="chime image" />
       )}
 
       <div className="justify-between flex font-medium">
@@ -68,10 +68,19 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
           {comments => (
             <>
               {comments.map(comment => (
-                <div key={comment.time} className="space-x-8">
-                  <p className="text-bold">{comment.by}</p>
+                <div key={comment.time} >
+                  <div className="justify-between flex">
+                    <p className="text-bold text-gray-500">{comment.by}</p>
+
+                    <p className="self-end text-sm whitespace-nowrap text-gray-500">
+                      {formatUnix(comment.time, true)}
+                    </p>
+                  </div>
                   <p>{comment.text}</p>
-                  <p className="self-end">{formatUnix(comment.time)}</p>
+
+                  {comment.mediaUrl && (
+                    <img src={comment.mediaUrl} className="m-0 p-0 w-full rounded-md" alt="comment image" />
+                  )}
                 </div>
               ))}
             </>
@@ -123,6 +132,9 @@ const Show: FC<{ chime: Chime }> = ({ chime }) => {
         />
       </button>
 
+      {/** delete button goes somewhere */}
+
+      <input type="file" accept="image/*" ref={inputRef} className="hidden" />
       <button
         onClick={() => inputRef.current?.click()}
         disabled={disabled}
@@ -133,7 +145,6 @@ const Show: FC<{ chime: Chime }> = ({ chime }) => {
           className={disabled ? 'opacity-30' : ''}
         />
       </button>
-      <input type="file" accept="image/*" ref={inputRef} className="hidden" />
     </div>
   );
 };
