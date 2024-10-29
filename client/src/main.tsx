@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
+import { isAxiosError, AxiosError } from 'axios';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -13,24 +13,23 @@ const queryClient = new QueryClient({
       retry: 1,
       staleTime: 1000 * 60 * 5,
 
-      throwOnError: err => {
+      // return err from query as state to feed into St8.error,
+      // propagating UI reflection of error state
+      throwOnError: _err => {
+        return false;
+      },
+    },
+    mutations: {
+      onError(err: Error) {
         if (!import.meta.env.PROD) {
           if (isAxiosError(err)) {
-            console.error(err.response?.data ?? err);
+            console.error(err.response?.data ?? err.message);
           } else {
             console.error(err);
           }
         }
-
-        // return err from query as state to feed into St8.error,
-        // propagating UI reflection of error state
-        return false;
       },
-    },
-    // TODO
-    // mutations: {
-    //   onError:
-    // }
+    }
   },
 });
 

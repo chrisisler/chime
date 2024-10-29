@@ -42,10 +42,6 @@ export const useCreateItem = () => {
 
     onSuccess: (_: AxiosResponse<Item>) =>
       queryClient.invalidateQueries(queries.items.all),
-
-    onError(err: AxiosError) {
-      console.error(err.response?.data ?? err.message);
-    },
   });
 
   return m.mutateAsync;
@@ -59,10 +55,6 @@ export const useDeleteItem = () => {
 
     onSuccess: (_: AxiosResponse<Item>) =>
       queryClient.invalidateQueries(queries.items.all),
-
-    onError(err: AxiosError) {
-      console.error(err.response?.data ?? err.message);
-    },
   });
 
   return m.mutateAsync;
