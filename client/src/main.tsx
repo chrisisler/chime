@@ -27,6 +27,10 @@ const queryClient = new QueryClient({
         return false;
       },
     },
+    // TODO
+    // mutations: {
+    //   onError:
+    // }
   },
 });
 

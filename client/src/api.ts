@@ -51,6 +51,23 @@ export const useCreateItem = () => {
   return m.mutateAsync;
 };
 
+export const useDeleteItem = () => {
+  const queryClient = useQueryClient();
+
+  const m = useMutation({
+    mutationFn: (item: Item) => api.items.delete(`/${item.id}`),
+
+    onSuccess: (_: AxiosResponse<Item>) =>
+      queryClient.invalidateQueries(queries.items.all),
+
+    onError(err: AxiosError) {
+      console.error(err.response?.data ?? err.message);
+    },
+  });
+
+  return m.mutateAsync;
+};
+
 export const formatUnix = (unixTime: number, short = false): string => {
   const now = Math.floor(Date.now() / 1000); // Current time in Unix seconds
   const diffInSeconds = now - unixTime;

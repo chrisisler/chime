@@ -124,6 +124,12 @@ namespace ChimeCore.Routes
 
                 item.Deleted = true;
 
+                if (item.Type == "chime")
+                {
+                    var kids = ctx.Items.Where(_ => _.Type == "comment" && item.Kids.Contains(_.Id));
+                    await kids.ForEachAsync(_ => _.Deleted = true, cancellationToken);
+                }
+
                 await ctx.SaveChangesAsync(cancellationToken);
 
                 return TypedResults.NoContent();

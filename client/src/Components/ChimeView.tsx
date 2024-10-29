@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useIsMutating } from '@tanstack/react-query';
 import { FC, useCallback, useRef, useState } from 'react';
 
-import { formatUnix, useCreateItem, useItems, } from '../api';
+import { formatUnix, useCreateItem, useDeleteItem, useItems, } from '../api';
 import { Chime, Comment } from '../interfaces';
 import { St8, St8View } from '../St8';
 import { Loading } from './Loading';
@@ -17,6 +17,8 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
   const [show, setShow] = useState(false);
   // for now
   const [liked, setLike] = useState(false);
+
+  const deleteItem = useDeleteItem();
 
   const comments = St8.map(
     useItems(),
@@ -49,7 +51,7 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
             icon={faHeart}
             className={liked ? 'text-red-500' : ''}
           />
-          <p>{Math.floor(chime.text.length/2 + (liked ? 1 : 0))}</p>
+          <p>{Math.floor(chime.text.length / 2 + (liked ? 1 : 0))}</p>
         </div>
 
         <div
@@ -71,7 +73,15 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
                 <div className="justify-between flex">
                   <p className="text-bold text-gray-500">{comment.by}</p>
 
-                  <p className="self-end text-sm whitespace-nowrap text-gray-500">
+                  <p
+                    className="self-end text-sm whitespace-nowrap text-gray-500 cursor-pointer underline"
+                    onClick={() => {
+                      if (!window.confirm(`Delete comment by ${comment.by}?`)) {
+                        return;
+                      }
+                      deleteItem(comment);
+                    }}
+                  >
                     {formatUnix(comment.time, true)}
                   </p>
                 </div>
