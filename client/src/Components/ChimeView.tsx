@@ -49,7 +49,7 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
             icon={faHeart}
             className={liked ? 'text-red-500' : ''}
           />
-          <p>{Number(chime.text.length + (liked ? 1 : 0))}</p>
+          <p>{Math.floor(chime.text.length/2 + (liked ? 1 : 0))}</p>
         </div>
 
         <div
@@ -63,30 +63,28 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
 
       {show && <Show chime={chime} />}
 
-      <div className="w-full space-y-4">
-        <St8View data={comments} loading={() => <Loading />} error={() => null}>
-          {comments => (
-            <>
-              {comments.map(comment => (
-                <div key={comment.time} >
-                  <div className="justify-between flex">
-                    <p className="text-bold text-gray-500">{comment.by}</p>
+      <St8View data={comments} loading={() => <Loading />} error={() => null}>
+        {comments => comments.length === 0 ? null : (
+          <div className="w-full space-y-4">
+            {comments.map(comment => (
+              <div key={comment.time} >
+                <div className="justify-between flex">
+                  <p className="text-bold text-gray-500">{comment.by}</p>
 
-                    <p className="self-end text-sm whitespace-nowrap text-gray-500">
-                      {formatUnix(comment.time, true)}
-                    </p>
-                  </div>
-                  <p>{comment.text}</p>
-
-                  {comment.mediaUrl && (
-                    <img src={comment.mediaUrl} className="m-0 p-0 w-full rounded-md" alt="comment image" />
-                  )}
+                  <p className="self-end text-sm whitespace-nowrap text-gray-500">
+                    {formatUnix(comment.time, true)}
+                  </p>
                 </div>
-              ))}
-            </>
-          )}
-        </St8View>
-      </div>
+                <p>{comment.text}</p>
+
+                {comment.mediaUrl && (
+                  <img src={comment.mediaUrl} className="m-0 p-0 w-full rounded-md" alt="comment image" />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </St8View>
     </div>
   );
 };

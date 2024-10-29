@@ -65,9 +65,6 @@ namespace ChimeCore.Routes
                 ctx.Items.Add(item);
                 await ctx.SaveChangesAsync(cancellationToken);
 
-                Console.WriteLine("----------" + item.Id + "--------------");
-                Console.WriteLine("----------" + item.Id + "--------------");
-
                 if (item.Type == "comment" && item.ParentId is int _parentId)
                 {
                     Item? parentChime = await ctx.Items.FindAsync(
