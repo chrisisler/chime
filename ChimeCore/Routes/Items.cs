@@ -129,6 +129,16 @@ namespace ChimeCore.Routes
                     var kids = ctx.Items.Where(_ => _.Type == "comment" && item.Kids.Contains(_.Id));
                     await kids.ForEachAsync(_ => _.Deleted = true, cancellationToken);
                 }
+                else if (item.Type == "comment")
+                {
+                    var parent = await ctx.Items.FindAsync(item.ParentId);
+                    if (parent == null)
+                    {
+                        return TypedResults.Problem("Deleting comment using invalid parent ID");
+                    }
+
+                    parent.Kids = parent.Kids.Where(commentId => commentId != item.Id).ToArray();
+                }
 
                 await ctx.SaveChangesAsync(cancellationToken);
 

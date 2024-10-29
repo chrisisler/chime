@@ -5,10 +5,10 @@ import {
   faPaperclip,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useIsMutating } from '@tanstack/react-query';
+import { useIsMutating, useMutation } from '@tanstack/react-query';
 import { FC, useCallback, useRef, useState } from 'react';
 
-import { formatUnix, useCreateItem, useDeleteItem, useItems, } from '../api';
+import { formatUnix, mutations, useItems, } from '../api';
 import { Chime, Comment } from '../interfaces';
 import { St8, St8View } from '../St8';
 import { Loading } from './Loading';
@@ -18,7 +18,7 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
   // for now
   const [liked, setLike] = useState(false);
 
-  const deleteItem = useDeleteItem();
+  const deleteItem = useMutation(mutations.deleteItem).mutateAsync;
 
   const comments = St8.map(
     useItems(),
@@ -32,7 +32,18 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
 
         <div className="-mt-1">
           <p className="font-bold text-lg">{chime.by}</p>
-          <p className="text-gray-600">{formatUnix(chime.time)}</p>
+          <p
+            className="text-gray-600 cursor-pointer"
+            onClick={async () => {
+              if (!window.confirm(`Really delete this chime?`)) {
+                return;
+              }
+
+              deleteItem(chime);
+            }}
+          >
+            {formatUnix(chime.time)}
+          </p>
         </div>
       </div>
 
@@ -109,7 +120,7 @@ const Show: FC<{ chime: Chime }> = ({ chime }) => {
   const by = 'anonymous-commenter-dev';
   const byId = 0;
 
-  const createItem = useCreateItem();
+  const createItem = useMutation(mutations.createItem).mutateAsync;
 
   const postComment = useCallback(async () => {
     await createItem([

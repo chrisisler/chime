@@ -1,8 +1,36 @@
-import { QueryFunctionContext, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import { QueryClient, QueryFunctionContext, useQuery, } from '@tanstack/react-query';
+import axios, { AxiosResponse, isAxiosError } from 'axios';
 
 import { St8 } from './St8';
 import { Item } from './interfaces';
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 1000 * 60 * 5,
+
+      // return err from query as state to feed into St8.error,
+      // propagating UI reflection of error state
+      throwOnError: _err => {
+        return false;
+      },
+    },
+    mutations: {
+      onError(err: Error) {
+        if (!import.meta.env.PROD) {
+          if (isAxiosError(err)) {
+            console.error(err.response?.data ?? err.message);
+          } else {
+            console.error(err);
+          }
+        }
+      },
+    }
+  },
+});
+
 
 const api = {
   items: axios.create({
@@ -27,38 +55,33 @@ const queries = {
 
 export const useItems = () => St8.from<Item[]>(useQuery(queries.items.all));
 
-// technically providing diff args for diff use cases
-// of this function means it ought to be split into to,
-// especially from an arity standpoint
-export const useCreateItem = () => {
-  const queryClient = useQueryClient();
-
-  const m = useMutation({
+export const mutations = {
+  // technically providing diff args for diff use cases of this function means
+  // it ought to be split into, especially from an arity standpoint
+  createItem: {
     /**
      * `type` info communicated via presence of `parentId` field
      */
-    mutationFn: ([itemDTO, file]: [Pick<Item, 'by' | 'byId' | 'text' | 'parentId'>, File?]) =>
-      api.items.postForm('/', { file, ...itemDTO, }),
+    mutationFn([itemDTO, file]: [Pick<Item, 'by' | 'byId' | 'text' | 'parentId'>, File?]) {
+      return api.items.postForm('/', { file, ...itemDTO, });
+    },
+    onSuccess(_: AxiosResponse<Item>) {
+      return queryClient.invalidateQueries(queries.items.all);
+    },
+  },
 
-    onSuccess: (_: AxiosResponse<Item>) =>
-      queryClient.invalidateQueries(queries.items.all),
-  });
-
-  return m.mutateAsync;
+  deleteItem: {
+    mutationFn(item: Item) {
+      return api.items.delete(`/${item.id}`);
+    },
+    onSuccess() {
+      return queryClient.invalidateQueries(queries.items.all);
+    }
+  }
 };
 
-export const useDeleteItem = () => {
-  const queryClient = useQueryClient();
-
-  const m = useMutation({
-    mutationFn: (item: Item) => api.items.delete(`/${item.id}`),
-
-    onSuccess: (_: AxiosResponse<Item>) =>
-      queryClient.invalidateQueries(queries.items.all),
-  });
-
-  return m.mutateAsync;
-};
+queryClient.setMutationDefaults(['create-item'], mutations.createItem);
+queryClient.setMutationDefaults(['delete-item'], mutations.deleteItem);
 
 export const formatUnix = (unixTime: number, short = false): string => {
   const now = Math.floor(Date.now() / 1000); // Current time in Unix seconds

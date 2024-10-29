@@ -1,9 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUpload } from '@fortawesome/free-solid-svg-icons';
-import { useIsMutating } from '@tanstack/react-query';
+import { useIsMutating, useMutation } from '@tanstack/react-query';
 import { FC, useRef, useState } from 'react';
 
-import { useCreateItem } from '../api';
+import { mutations} from '../api';
 
 export const CreateChime: FC = () => {
   const inputRef = useRef<null | HTMLInputElement>(null);
@@ -11,7 +11,8 @@ export const CreateChime: FC = () => {
   const [chime, setChime] = useState('');
 
   const isMutating = useIsMutating() > 0;
-  const createItem = useCreateItem();
+
+  const createItem = useMutation(mutations.createItem).mutateAsync;
 
   // const byId = `${navigator.platform}: ${navigator.userAgent}`;
   const byId = 9001; // TODO authentication
