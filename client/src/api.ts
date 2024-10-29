@@ -13,9 +13,7 @@ export const queryClient = new QueryClient({
 
       // return err from query as state to feed into St8.error,
       // propagating UI reflection of error state
-      throwOnError: _err => {
-        return false;
-      },
+      throwOnError: false,
     },
     mutations: {
       onError(err: Error) {
@@ -79,9 +77,6 @@ export const mutations = {
     }
   }
 };
-
-queryClient.setMutationDefaults(['create-item'], mutations.createItem);
-queryClient.setMutationDefaults(['delete-item'], mutations.deleteItem);
 
 export const formatUnix = (unixTime: number, short = false): string => {
   const now = Math.floor(Date.now() / 1000); // Current time in Unix seconds
