@@ -35,7 +35,7 @@ const queries = {
   }
 };
 
-// export const useComments = () => St8.from<Chime[]>(useQuery(queries.chimes.all));
+export const useComments = () => St8.from<Comment[]>(useQuery(queries.comments.all));
 export const useChimes = () => St8.from<Chime[]>(useQuery(queries.chimes.all));
 
 export const useCreateChime = () => {
@@ -63,8 +63,12 @@ export const useCreateComment = () => {
     mutationFn: ([commentDTO, file]: [Pick<Comment, 'by' | 'byId' | 'text' | 'parentId'>, File?]) =>
       api.comments.postForm('/', { file, ...commentDTO, }),
 
-    onSuccess: (_r: AxiosResponse<Comment>) => 
-      queryClient.invalidateQueries(queries.chimes.all),
+    onSuccess: async (r: AxiosResponse<Comment>) => {
+      await queryClient.invalidateQueries(queries.chimes.all);
+
+      return queryClient.setQueryData(queries.comments.all.queryKey, (_: Comment[] = []) => [r.data].concat(_));
+    },
+
 
     onError(err: AxiosError) {
       console.error(err.response?.data ?? err.message);

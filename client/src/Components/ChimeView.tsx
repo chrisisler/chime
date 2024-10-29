@@ -8,13 +8,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useIsMutating } from '@tanstack/react-query';
 import { FC, useCallback, useRef, useState } from 'react';
 
-import { formatUnix, useCreateComment } from '../api';
+import { formatUnix, useComments, useCreateComment } from '../api';
 import { Chime } from '../interfaces';
+import { St8, St8View } from '../St8';
+import { Loading } from './Loading';
 
 export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
   const [show, setShow] = useState(false);
   // for now
   const [liked, setLike] = useState(false);
+
+  const comments =
+    St8.map(useComments(), _ => _.filter(comment => chime.kids.includes(comment.id)));
 
   return (
     <div className="border-gray-600 rounded-md p-8 border space-y-10">
@@ -57,11 +62,19 @@ export const ChimeView: FC<{ chime: Chime }> = ({ chime }) => {
       {show && <Show chime={chime} />}
 
       <div className="w-full space-y-4">
-        {chime.kids.map(commentId => (
-          <p key={commentId} className="text-bold">
-            {commentId}
-          </p>
-        ))}
+        <St8View data={comments} loading={() => <Loading />} error={() => null}>
+          {comments => (
+            <>
+              {comments.map(comment => (
+                <div key={comment.time} className="space-x-8">
+                  <p className="text-bold">{comment.by}</p>
+                  <p>{comment.text}</p>
+                  <p className="self-end">{formatUnix(comment.time)}</p>
+                </div>
+              ))}
+            </>
+          )}
+        </St8View>
       </div>
     </div>
   );
@@ -74,7 +87,7 @@ const Show: FC<{ chime: Chime }> = ({ chime }) => {
 
   const isMutating = useIsMutating() > 0;
 
-  const by = "anonymous-commenter-dev";
+  const by = 'anonymous-commenter-dev';
   const byId = 0;
 
   const createComment = useCreateComment();
@@ -82,12 +95,11 @@ const Show: FC<{ chime: Chime }> = ({ chime }) => {
   const postComment = useCallback(async () => {
     await createComment([
       { by, byId, text: comment, parentId: chime.id },
-      inputRef.current?.files?.[0]
+      inputRef.current?.files?.[0],
     ]);
 
     setComment('');
     inputRef.current = null;
-
   }, [comment, by, byId, chime.id, inputRef]);
 
   const disabled = comment.length < 3 || isMutating;
@@ -102,7 +114,11 @@ const Show: FC<{ chime: Chime }> = ({ chime }) => {
           placeholder="Add a comment..."
         />
 
-        <button onClick={() => inputRef.current?.click()} disabled={disabled} className="hover:cursor-pointer">
+        <button
+          onClick={() => inputRef.current?.click()}
+          disabled={disabled}
+          className="hover:cursor-pointer"
+        >
           <FontAwesomeIcon
             icon={faPaperclip}
             className={disabled ? 'opacity-30' : ''}

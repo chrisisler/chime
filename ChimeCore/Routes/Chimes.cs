@@ -21,10 +21,13 @@ namespace ChimeCore.Routes
             /* chimesRouter.MapGet("/{username}", async (string username, ApplicationDbContext ctx) => */
             /*     await ctx.Chimes.Where(_ => _.By.ToLower().Contains(username.ToLower())).ToListAsync()); */
 
-            static async Task<IResult> GetAllChimes(ApplicationDbContext ctx)
+            static async Task<IResult> GetAllChimes(ApplicationDbContext ctx, CancellationToken cancellationToken)
             {
                 return TypedResults.Ok(
-                    await ctx.Chimes.Where(_ => _.Deleted == false).OrderByDescending(_ => _.Time).ToListAsync()
+                    await ctx.Chimes
+                        .Where(_ => _.Deleted == false)
+                        .OrderByDescending(_ => _.Time)
+                        .ToListAsync(cancellationToken)
                 );
             }
 
@@ -58,8 +61,8 @@ namespace ChimeCore.Routes
 
                 var chime = new Chime(by, byId, text, kids: [], mediaUrl);
 
-                ctx.Chimes.Add(chime);
-                await ctx.SaveChangesAsync();
+                var res = ctx.Chimes.Add(chime);
+                await ctx.SaveChangesAsync(cancellationToken);
 
                 return TypedResults.Created($"/Chime/{chime.Id}", chime);
             }
@@ -71,7 +74,12 @@ namespace ChimeCore.Routes
                     : TypedResults.NotFound("Failed to find Item with ID: " + id);
             }
 
-            static async Task<IResult> UpdateChime(int id, ChimeDTO chimeDTO, ApplicationDbContext ctx)
+            static async Task<IResult> UpdateChime(
+                int id,
+                ChimeDTO chimeDTO,
+                ApplicationDbContext ctx,
+                CancellationToken cancellationToken
+            )
             {
                 var chime = await ctx.Chimes.FirstOrDefaultAsync(_ => _.Id == id && _.Deleted == false);
                 if (chime is null)
@@ -82,12 +90,12 @@ namespace ChimeCore.Routes
                 chime.Text = chimeDTO.Text;
                 chime.Kids = chimeDTO.Kids;
 
-                await ctx.SaveChangesAsync();
+                await ctx.SaveChangesAsync(cancellationToken);
 
                 return TypedResults.Ok(chime);
             }
 
-            static async Task<IResult> DeleteChime(int id, ApplicationDbContext ctx)
+            static async Task<IResult> DeleteChime(int id, ApplicationDbContext ctx, CancellationToken cancellationToken)
             {
                 var chime = await ctx.Chimes.FirstOrDefaultAsync(_ => _.Id == id && _.Deleted == false);
                 if (chime is null)
@@ -97,7 +105,7 @@ namespace ChimeCore.Routes
 
                 chime.Deleted = true;
 
-                await ctx.SaveChangesAsync();
+                await ctx.SaveChangesAsync(cancellationToken);
 
                 return TypedResults.NoContent();
             }
