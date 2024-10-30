@@ -30,7 +30,7 @@
       args: 
         chdir: /home/azureuser/ChimeCore
 
-    - name: Publish app
+    - name: Create cronjob to start app
       cron:
         name: Start app on boot
         special_time: reboot
