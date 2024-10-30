@@ -21,7 +21,7 @@ Bin/
 obj/
 Obj/
 
-ChimeCore/appsettings*.json
+# ChimeCore/appsettings*.json
 
 /wwwroot/dist/
 
