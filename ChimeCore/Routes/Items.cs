@@ -88,9 +88,9 @@ namespace ChimeCore.Routes
 
             static async Task<IResult> GetItemById(int id, ApplicationDbContext ctx, CancellationToken cancellationToken)
             {
-                return await ctx.Items.Where(_ => _.Deleted == false && _.Id == id).Distinct().FirstOrDefaultAsync(cancellationToken) is Item item
-                    ? TypedResults.Ok(item)
-                    : TypedResults.NotFound("Failed to find Item with ID: " + id);
+                return await ctx.Items.Where(_ => !_.Deleted && _.Id == id).FirstOrDefaultAsync(cancellationToken) is Item item
+                      ? TypedResults.Ok(item)
+                      : TypedResults.NotFound("Failed to find Item with ID: " + id);
             }
 
             static async Task<IResult> UpdateItem(
@@ -100,7 +100,7 @@ namespace ChimeCore.Routes
                 CancellationToken cancellationToken
             )
             {
-                var item = await ctx.Items.Distinct().FirstOrDefaultAsync(_ => _.Id == id && _.Deleted == false, cancellationToken);
+                var item = await ctx.Items.Where(_ => _.Id == id && _.Deleted == false).FirstOrDefaultAsync(cancellationToken);
                 if (item is null)
                 {
                     return TypedResults.NotFound("Failed to find Item with ID: " + id);
@@ -116,7 +116,7 @@ namespace ChimeCore.Routes
 
             static async Task<IResult> DeleteItem(int id, ApplicationDbContext ctx, CancellationToken cancellationToken)
             {
-                var item = await ctx.Items.Distinct().FirstOrDefaultAsync(_ => _.Id == id && _.Deleted == false, cancellationToken);
+                var item = await ctx.Items.Where(_ => _.Id == id && _.Deleted == false).FirstOrDefaultAsync(cancellationToken);
                 if (item is null)
                 {
                     return TypedResults.NotFound("Failed to find Item with ID: " + id);
@@ -131,7 +131,7 @@ namespace ChimeCore.Routes
                 }
                 else if (item.Type == "comment")
                 {
-                    var parent = await ctx.Items.FindAsync(item.ParentId);
+                    var parent = await ctx.Items.FindAsync(item.ParentId, cancellationToken);
                     if (parent == null)
                     {
                         return TypedResults.Problem("Deleting comment using invalid parent ID");

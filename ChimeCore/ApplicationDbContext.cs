@@ -24,5 +24,10 @@ namespace ChimeCore.Data
                 entity.Property(_ => _.Id).UseIdentityColumn();
             });
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.LogTo(Console.WriteLine);
+        }
     }
 }
