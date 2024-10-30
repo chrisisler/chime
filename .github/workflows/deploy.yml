@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  environment: Chime PRODUCTION Environment
   deploy:
+    environment: "Chime PRODUCTION Environment"
     runs-on: ubuntu-latest
 
     steps:
