@@ -23,17 +23,17 @@
     - name: Install dependencies
       command: dotnet restore
       args: 
-        chdir: /home/ubuntu/ChimeCore
+        chdir: /home/azureuser/ChimeCore
 
     - name: Build app
       command: dotnet build
       args: 
-        chdir: /home/ubuntu/ChimeCore
+        chdir: /home/azureuser/ChimeCore
 
     - name: Run the app
       command: dotnet run
       args: 
-        chdir: /home/ubuntu/ChimeCore
+        chdir: /home/azureuser/ChimeCore
 
     # - name: Install Forever to continuously run the Node app 
     #   command: /usr/local/bin/yarn global add forever --non-interactive
