@@ -1,0 +1,30 @@
+name: Deploy to Azure cloud VM instance
+
+on:
+  push:
+    branches: 
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout code
+      uses: actions/checkout@v2
+
+    - name: install ansible
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ansible
+
+    - name: add ssh key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H "${{ secrets.AZURE_VM_IP }}" >> ~/.ssh/known_hosts
+
+    - name: run ansible playbook
+      run: |
+        ansible-playbook -i "${{ secrets.AZURE_VM_IP }}," ansible-playbook.yml --private-key ~/.ssh/id_rsa -u azureuser

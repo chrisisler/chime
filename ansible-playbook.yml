@@ -1,0 +1,40 @@
+- name: Deploy Chime .NET8.0 API
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update package index
+      apt: 
+        update_cache: yes
+
+    - name: Install .NET8.0
+      apt:
+        name:
+          - dotnet8
+        state: present
+
+    - name: Copy API app files from monorepo to VM instance
+      copy: 
+        src: ./ChimeCore/
+        dest: /home/azureuser/ChimeCore
+        owner: azureuser
+        group: azureuser
+        mode: '0755'
+
+    - name: Install dependencies
+      command: dotnet restore
+      args: 
+        chdir: /home/ubuntu/ChimeCore
+
+    - name: Build app
+      command: dotnet build
+      args: 
+        chdir: /home/ubuntu/ChimeCore
+
+    - name: Run the app
+      command: dotnet run
+      args: 
+        chdir: /home/ubuntu/ChimeCore
+
+    # - name: Install Forever to continuously run the Node app 
+    #   command: /usr/local/bin/yarn global add forever --non-interactive
+
