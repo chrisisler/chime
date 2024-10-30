@@ -22,6 +22,7 @@ obj/
 Obj/
 
 # ChimeCore/appsettings*.json
+ChimeCore/publish
 
 /wwwroot/dist/
 

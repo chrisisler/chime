@@ -25,15 +25,23 @@
       args: 
         chdir: /home/azureuser/ChimeCore
 
-    - name: Build app
-      command: dotnet build
+    - name: Publish app
+      run: dotnet publish -c Release -o ./publish
       args: 
         chdir: /home/azureuser/ChimeCore
 
-    - name: Run the app
-      command: dotnet run
+    - name: Publish app
+      cron:
+        name: Start app on boot
+        special_time: reboot
+        job: nohup dotnet /home/azureuser/ChimeCore/publish/ChimeCore.dll &
+
+    - name: Run app
+      shell: nohup dotnet ./publish/ChimeCore.dll &
       args: 
         chdir: /home/azureuser/ChimeCore
+      async: 0
+      poll: 0
 
     # - name: Install Forever to continuously run the Node app 
     #   command: /usr/local/bin/yarn global add forever --non-interactive
