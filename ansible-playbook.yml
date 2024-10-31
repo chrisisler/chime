@@ -42,7 +42,3 @@
         chdir: /home/azureuser/ChimeCore
       async: 0
       poll: 0
-
-    # - name: Install Forever to continuously run the Node app 
-    #   command: /usr/local/bin/yarn global add forever --non-interactive
-

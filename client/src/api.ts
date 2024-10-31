@@ -38,9 +38,12 @@ export const expect = <T>(cond: T | undefined, msg: string): T => {
 }
 
 // const apiUrl = import.meta.env.PROD
-//   ? expect(import.meta.env.AZURE_API_URL, 'AZURE_API_URL env var not set ya noob')
+//   ? expect(import.meta.env.VITE_AZURE_API_URL, 'AZURE_API_URL env var not set ya noob')
 //   : 'http://localhost:5028';
-const apiUrl = expect(import.meta.env.AZURE_API_URL, 'AZURE_API_URL env var not set, darnit!');
+const apiUrl = expect(
+  import.meta.env.VITE_AZURE_API_URL,
+  'VITE_AZURE_API_URL env var not set, darnit!'
+);
 // const apiUrl = 'http://localhost:5028';
 
 const api = {
@@ -55,6 +58,7 @@ const queries = {
       queryKey: ['items'],
       queryFn: ({ signal }: QueryFunctionContext) =>
         api.items.get('/', { signal }).then((r: AxiosResponse) => r.data),
+      initialData: [],
     },
     // findById: (id: number) => ({
     //   queryKey: ['items', id],
