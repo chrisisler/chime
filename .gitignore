@@ -21,6 +21,8 @@ Bin/
 obj/
 Obj/
 
+client/.env
+
 # ChimeCore/appsettings*.json
 ChimeCore/publish
 

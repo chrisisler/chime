@@ -29,10 +29,23 @@ export const queryClient = new QueryClient({
   },
 });
 
+export const expect = <T>(cond: T | undefined, msg: string): T => {
+  if (!cond) {
+    throw Error(`Failed Expect: ${msg}`);
+  }
+
+  return cond;
+}
+
+// const apiUrl = import.meta.env.PROD
+//   ? expect(import.meta.env.AZURE_API_URL, 'AZURE_API_URL env var not set ya noob')
+//   : 'http://localhost:5028';
+const apiUrl = expect(import.meta.env.AZURE_API_URL, 'AZURE_API_URL env var not set, darnit!');
+// const apiUrl = 'http://localhost:5028';
 
 const api = {
   items: axios.create({
-    baseURL: 'http://localhost:5028' + '/v0/Items',
+    baseURL: apiUrl + '/v0/Items',
   }),
 };
 
@@ -41,7 +54,7 @@ const queries = {
     all: {
       queryKey: ['items'],
       queryFn: ({ signal }: QueryFunctionContext) =>
-        api.items.get('/', { signal }).then(r => r.data),
+        api.items.get('/', { signal }).then((r: AxiosResponse) => r.data),
     },
     // findById: (id: number) => ({
     //   queryKey: ['items', id],
