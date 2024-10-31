@@ -26,7 +26,7 @@
         chdir: /home/azureuser/ChimeCore
 
     - name: Publish app
-      run: dotnet publish -c Release -o ./publish
+      command: dotnet publish -c Release -o ./publish
       args: 
         chdir: /home/azureuser/ChimeCore
 
