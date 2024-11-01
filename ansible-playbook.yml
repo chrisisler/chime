@@ -42,3 +42,10 @@
         chdir: /home/azureuser/ChimeCore
       async: 0
       poll: 0
+
+    - name: Check app is running
+      shell: ps ux | grep dotnet
+      register: result
+      until: result.rc == 0
+      retries: 5
+      delay: 5
