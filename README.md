@@ -1,7 +1,7 @@
-<div align="center">
 ## Chime
 
-<b>[Try chime right now. URL coming soon.]</b>
+<div align="center">
+<b>[Try chime right now](https://trychime.now.sh)</b>
 </div>
 
 - A space to share quick thoughts and connect with a community of creators
