@@ -40,7 +40,7 @@ export const expect = <T>(cond: T | undefined, msg: string): T => {
 // const apiUrl = import.meta.env.PROD
 //   ? expect(import.meta.env.VITE_AZURE_API_URL, 'AZURE_API_URL env var not set ya noob')
 //   : 'http://localhost:5028';
-const apiUrl = expect(
+const apiUrl = expect<string>(
   import.meta.env.VITE_AZURE_API_URL,
   'VITE_AZURE_API_URL env var not set, darnit!'
 );
@@ -80,7 +80,7 @@ export const mutations = {
     mutationFn([itemDTO, file]: [Pick<Item, 'by' | 'byId' | 'text' | 'parentId'>, File?]) {
       return api.items.postForm('/', { file, ...itemDTO, });
     },
-    onSuccess(_: AxiosResponse<Item>) {
+    onSuccess() {
       return queryClient.invalidateQueries(queries.items.all);
     },
   },
