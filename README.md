@@ -1,11 +1,11 @@
 ## Chime
 
-<div align="center">
+
 <b>[Try chime right now](https://trychime.now.sh)</b>
-</div>
+
 
 - A space to share quick thoughts and connect with a community of creators
-- Built with React, .NET EF Core, SQL Server, Azure Blob Storage and Azure services
+- Built with .NET, EF Core, React, and Azure cloud services (sql db, blob, vm)
 - Supports file upload for uploading images along with text
 - Implemented using Minimal API design from C# .NET 8.0
 - Visually designed for mobile-first responsiveness
