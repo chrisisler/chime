@@ -18,7 +18,6 @@ namespace ChimeCore.Routes
             itemsRouter.MapPut("/{id}", UpdateItem).WithName("UpdateItem");
             itemsRouter.MapDelete("/{id}", DeleteItem).WithName("DeleteItem");
 
-            // TODO filters
             static async Task<IResult> GetAllItems(ApplicationDbContext ctx, CancellationToken cancellationToken)
             {
                 return TypedResults.Ok(
