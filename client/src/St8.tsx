@@ -11,8 +11,7 @@ export type St8<T> = typeof St8Empty | typeof St8Loading | St8Error | T;
 
 /** Wait for all provided St8s to be ready. */
 // @ts-expect-error Ignoring arg type def.
-// const _all: St8All = (...array) =>
-//   array.find(arg => !St8.isReady(arg)) || array;
+const _all: St8All = (...array) => array.find(arg => !St8.isReady(arg)) || array;
 
 interface St8All {
   <A>(ds1: St8<A>): St8<[A]>;
@@ -90,7 +89,7 @@ export const St8 = {
    *
    * @example St8.all<[string, number]>(str, num);
    */
-  // all: _all,
+  all: _all,
 };
 
 export function St8View<T>(props: {

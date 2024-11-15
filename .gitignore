@@ -22,6 +22,7 @@ obj/
 Obj/
 
 client/.env
+client/*.tsbuildinfo
 
 # ChimeCore/appsettings*.json
 ChimeCore/publish
