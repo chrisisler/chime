@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-string[] allowedOrigins = { "http://localhost:5173" };
+string[] allowedOrigins = { "http://localhost:5173", "https://trychime.vercel.app" };
 
 builder.Services.AddCors(opts =>
 {
