@@ -17,12 +17,14 @@ export const queryClient = new QueryClient({
     },
     mutations: {
       onError(err: Error) {
-        if (!import.meta.env.PROD) {
-          if (isAxiosError(err)) {
-            console.error(err.response?.data ?? err.message);
-          } else {
-            console.error(err);
-          }
+        if (import.meta.env.PROD) {
+          return;
+        }
+
+        if (isAxiosError(err)) {
+          console.error(err.response?.data ?? err.stack ?? err.message);
+        } else {
+          console.error(err);
         }
       },
     }
@@ -71,12 +73,8 @@ const queries = {
 export const useItems = () => St8.from<Item[]>(useQuery(queries.items.all));
 
 export const mutations = {
-  // technically providing diff args for diff use cases of this function means
-  // it ought to be split into, especially from an arity standpoint
   createItem: {
-    /**
-     * `type` info communicated via presence of `parentId` field
-     */
+    /** `type` info communicated via presence of `parentId` field. */
     mutationFn([itemDTO, file]: [Pick<Item, 'by' | 'byId' | 'text' | 'parentId'>, File?]) {
       return api.items.postForm('/', { file, ...itemDTO, });
     },
