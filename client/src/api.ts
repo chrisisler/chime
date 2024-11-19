@@ -57,6 +57,7 @@ export const queries = {
       queryKey: ['items'],
       queryFn: ({ signal }: QueryFunctionContext) =>
         api.items.get('/', { signal }).then((r: AxiosResponse) => r.data || []),
+      initialData: [],
     },
     // findById: (id: number) => ({
     //   queryKey: ['items', id],

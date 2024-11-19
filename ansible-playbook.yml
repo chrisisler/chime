@@ -46,4 +46,4 @@
     - name: Check app is running
       wait_for:
         host: localhost
-        port: 5000
+        port: 5001
