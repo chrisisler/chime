@@ -3,7 +3,7 @@ import { faUpload } from '@fortawesome/free-solid-svg-icons';
 import { useIsMutating, useMutation } from '@tanstack/react-query';
 import { FC, useRef, useState } from 'react';
 
-import { mutations} from '../api';
+import { mutations } from '../api';
 
 export const CreateChime: FC = () => {
   const inputRef = useRef<null | HTMLInputElement>(null);
@@ -13,10 +13,6 @@ export const CreateChime: FC = () => {
   const isMutating = useIsMutating() > 0;
 
   const createItem = useMutation(mutations.createItem).mutateAsync;
-
-  // const byId = `${navigator.platform}: ${navigator.userAgent}`;
-  const byId = 9001; // TODO authentication
-  const by = 'anonymous';
 
   return (
     <div className="border-gray-600 rounded-md p-8 border space-y-4 mt-8">
@@ -39,12 +35,16 @@ export const CreateChime: FC = () => {
           className="hover:cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed px-8"
           disabled={chime.length < 3 || isMutating}
           onClick={async () => {
-            const f: File | undefined = inputRef.current?.files?.[0];
+            try {
+              const f: File | undefined = inputRef.current?.files?.[0];
 
-            await createItem([{ by, byId, text: chime, parentId: null }, f]);
+              await createItem([{ by: 'anonymous', byId: 9001, text: chime, parentId: null }, f]);
 
-            setChime('');
-            inputRef.current = null;
+              setChime('');
+              inputRef.current = null;
+            } catch (err) {
+              console.error('Failed to create chime: ' + err);
+            }
           }}
         >
           Post
