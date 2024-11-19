@@ -43,7 +43,7 @@ const apiUrl = expect<string>(
   import.meta.env.VITE_AZURE_API_URL,
   'VITE_AZURE_API_URL env var not set, darnit!'
 );
-// const apiUrl = 'http://localhost:5028';
+// const apiUrl = 'http://localhost:5001';
 
 const api = {
   items: axios.create({
@@ -51,13 +51,12 @@ const api = {
   }),
 };
 
-const queries = {
+export const queries = {
   items: {
     all: {
       queryKey: ['items'],
       queryFn: ({ signal }: QueryFunctionContext) =>
-        api.items.get('/', { signal }).then((r: AxiosResponse) => r.data),
-      initialData: [],
+        api.items.get('/', { signal }).then((r: AxiosResponse) => r.data || []),
     },
     // findById: (id: number) => ({
     //   queryKey: ['items', id],
@@ -66,6 +65,10 @@ const queries = {
     // })
   },
 };
+
+queryClient.prefetchQuery(queries.items.all).catch(err => {
+  console.error(err);
+});
 
 export const useItems = () => St8.from<Item[]>(useQuery(queries.items.all));
 

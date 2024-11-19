@@ -87,9 +87,9 @@ namespace ChimeCore.Routes
 
             static async Task<IResult> GetItemById(int id, ApplicationDbContext ctx, CancellationToken cancellationToken)
             {
-                return await ctx.Items.Where(_ => !_.Deleted && _.Id == id).FirstOrDefaultAsync(cancellationToken) is Item item
-                      ? TypedResults.Ok(item)
-                      : TypedResults.NotFound("Failed to find Item with ID: " + id);
+                return await ctx.Items.FirstOrDefaultAsync(_ => !_.Deleted && _.Id == id, cancellationToken) is Item item
+                        ? TypedResults.Ok(item)
+                        : TypedResults.NotFound("Failed to find Item with ID: " + id);
             }
 
             static async Task<IResult> UpdateItem(
@@ -99,7 +99,7 @@ namespace ChimeCore.Routes
                 CancellationToken cancellationToken
             )
             {
-                var item = await ctx.Items.Where(_ => _.Id == id && _.Deleted == false).FirstOrDefaultAsync(cancellationToken);
+                var item = await ctx.Items.FirstOrDefaultAsync(_ => _.Id == id && _.Deleted == false, cancellationToken);
                 if (item is null)
                 {
                     return TypedResults.NotFound("Failed to find Item with ID: " + id);
@@ -115,7 +115,7 @@ namespace ChimeCore.Routes
 
             static async Task<IResult> DeleteItem(int id, ApplicationDbContext ctx, CancellationToken cancellationToken)
             {
-                var item = await ctx.Items.Where(_ => _.Id == id && _.Deleted == false).FirstOrDefaultAsync(cancellationToken);
+                var item = await ctx.Items.FirstOrDefaultAsync(_ => _.Id == id && _.Deleted == false, cancellationToken);
                 if (item is null)
                 {
                     return TypedResults.NotFound("Failed to find Item with ID: " + id);
@@ -143,7 +143,6 @@ namespace ChimeCore.Routes
 
                 return TypedResults.NoContent();
             }
-
         }
     }
 }
