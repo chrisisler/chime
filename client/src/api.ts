@@ -4,6 +4,12 @@ import axios, { AxiosResponse, isAxiosError } from 'axios';
 import { St8 } from './St8';
 import { Item } from './interfaces';
 
+// const apiUrl = 'https://' + expect<string>(
+//   import.meta.env.VITE_AZURE_API_URL,
+//   'VITE_AZURE_API_URL env var not set, darnit!'
+// ) + ':5001';
+const apiUrl = 'http://localhost:5001';
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -31,7 +37,7 @@ export const queryClient = new QueryClient({
   },
 });
 
-export const expect = <T>(cond: T | undefined, msg: string): T => {
+function expect<T>(cond: T | undefined, msg: string): T {
   if (!cond) {
     throw Error(`Failed Expect: ${msg}`);
   }
@@ -39,25 +45,18 @@ export const expect = <T>(cond: T | undefined, msg: string): T => {
   return cond;
 }
 
-const apiUrl = expect<string>(
-  import.meta.env.VITE_AZURE_API_URL,
-  'VITE_AZURE_API_URL env var not set, darnit!'
-);
-// const apiUrl = 'http://localhost:5001';
-
 const api = {
   items: axios.create({
     baseURL: apiUrl + '/v0/Items',
   }),
 };
 
-export const queries = {
+const queries = {
   items: {
     all: {
       queryKey: ['items'],
       queryFn: ({ signal }: QueryFunctionContext) =>
-        api.items.get('/', { signal }).then((r: AxiosResponse) => r.data || []),
-      initialData: [],
+        api.items.get('/', { signal }).then((r: AxiosResponse) => r.data),
     },
     // findById: (id: number) => ({
     //   queryKey: ['items', id],

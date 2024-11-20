@@ -8,14 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(opts => 
-{
-    opts.ResolveConflictingActions(apiDescriptions =>
-    {
-        Console.WriteLine(apiDescriptions);
-        return apiDescriptions.First();
-    });
-});
+builder.Services.AddSwaggerGen();
 
 string[] allowedOrigins = { "http://localhost:5173", "https://trychime.vercel.app" };
 

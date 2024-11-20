@@ -4,7 +4,10 @@ import { Item } from './interfaces';
 import { St8, St8View } from './St8';
 
 export default function App() {
-  const chimes = St8.map(useItems(), _ => _.filter(Item.isChime));
+  let chimes = St8.map(useItems(), _ => _.filter(Item.isChime));
+  if (St8.isEmpty(chimes)) {
+      chimes = [];
+  }
 
   return (
     <main className="space-y-8 max-w-md mx-auto">
