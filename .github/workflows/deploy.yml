@@ -28,4 +28,4 @@ jobs:
 
     - name: run ansible playbook
       run: |
-        ansible-playbook -i "${{ secrets.AZURE_VM_IP }}," ansible-playbook.yml --private-key ~/.ssh/id_rsa -u azureuser
+        ansible-playbook -i "${{ secrets.AZURE_VM_IP }}," ansible-playbook.yml --private-key ~/.ssh/id_rsa -u azureuser --extra-vars "AZURE_VM_IP=${{ secrets.AZURE_VM_IP }}"
