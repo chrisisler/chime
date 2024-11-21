@@ -4,11 +4,11 @@ import axios, { AxiosResponse, isAxiosError } from 'axios';
 import { St8 } from './St8';
 import { Item } from './interfaces';
 
-// const apiUrl = 'https://' + expect<string>(
-//   import.meta.env.VITE_AZURE_API_URL,
-//   'VITE_AZURE_API_URL env var not set, darnit!'
-// ) + ':5001';
-const apiUrl = 'http://localhost:5001';
+const apiUrl = 'http://' + expect<string>(
+  import.meta.env.VITE_AZURE_API_URL,
+  'VITE_AZURE_API_URL env var not set, darnit!'
+) + ':5001';
+// const apiUrl = 'http://localhost:5001';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -66,9 +66,9 @@ const queries = {
   },
 };
 
-queryClient.prefetchQuery(queries.items.all).catch(err => {
-  console.error(err);
-});
+// queryClient.prefetchQuery(queries.items.all).catch(err => {
+//   console.error(err);
+// });
 
 export const useItems = () => St8.from<Item[]>(useQuery(queries.items.all));
 
