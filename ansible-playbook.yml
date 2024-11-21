@@ -2,16 +2,20 @@
   hosts: all
   become: yes
   tasks:
+
+
     - name: Update package index
       apt: 
         update_cache: yes
 
-    - name: Install .NET8.0
+
+    - name: Install .NET8.0 and Caddy
       apt:
         name:
           - dotnet8
           - caddy
         state: present
+
 
     - name: Copy API app files from monorepo to VM instance
       copy: 
@@ -21,18 +25,28 @@
         group: azureuser
         mode: '0755'
 
+
     - name: Install dependencies
       command: dotnet restore
       args: 
         chdir: /home/azureuser/ChimeCore
+
+
+    - name: Configure Caddy reverse proxy for automatic HTTPS
+      command: printf "{{ AZURE_VM_IP }} {\n\treverse_proxy localhost:5001\n}" > /etc/caddy/Caddyfile
+
 
     - name: Publish app
       command: dotnet publish -c Release -o ./publish
       args: 
         chdir: /home/azureuser/ChimeCore
 
-    - name: Configure Caddy reverse proxy for automatic HTTPS
-      command: printf "{{ AZURE_VM_IP }} {\n\treverse_proxy localhost:5001\n}" > /etc/caddy/Caddyfile
+
+    # - name: Run caddy HTTPS proxy
+    #   shell: caddy run --environ --config /etc/caddy/Caddyfile
+    #   async: 0
+    #   poll: 0
+
 
     - name: Run app
       shell: dotnet ./publish/ChimeCore.dll > /tmp/chime.log 2>&1 &
@@ -40,6 +54,7 @@
         chdir: /home/azureuser/ChimeCore
       async: 0
       poll: 0
+
 
     - name: Check app is running
       wait_for:
