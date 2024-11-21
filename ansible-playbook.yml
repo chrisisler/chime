@@ -10,6 +10,7 @@
       apt:
         name:
           - dotnet8
+          - caddy
         state: present
 
     - name: Copy API app files from monorepo to VM instance
@@ -30,11 +31,8 @@
       args: 
         chdir: /home/azureuser/ChimeCore
 
-    - name: Create cronjob to start app
-      cron:
-        name: Start app on boot
-        special_time: reboot
-        job: dotnet /home/azureuser/ChimeCore/publish/ChimeCore.dll &
+    - name: Configure Caddy reverse proxy for automatic HTTPS
+      command: printf "{{ AZURE_VM_IP }} {\n\treverse_proxy localhost:5001\n}" > /etc/caddy/Caddyfile
 
     - name: Run app
       shell: dotnet ./publish/ChimeCore.dll > /tmp/chime.log 2>&1 &

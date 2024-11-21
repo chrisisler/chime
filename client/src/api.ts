@@ -4,10 +4,10 @@ import axios, { AxiosResponse, isAxiosError } from 'axios';
 import { St8 } from './St8';
 import { Item } from './interfaces';
 
-const apiUrl = 'http://' + expect<string>(
+const apiUrl = 'https://' + expect<string>(
   import.meta.env.VITE_AZURE_API_URL,
   'VITE_AZURE_API_URL env var not set, darnit!'
-) + ':5001';
+);
 // const apiUrl = 'http://localhost:5001';
 
 export const queryClient = new QueryClient({
