@@ -18,17 +18,20 @@ export const queryClient = new QueryClient({
       staleTime: 1000 * 60 * 5,
 
       // return err from query as state to feed into St8.error,
-      // propagating UI reflection of error state
+      // propagating UI reflection of error state via St8View
       throwOnError: false,
     },
     mutations: {
       onError(err: Error) {
+        // could feed err to Sentry instance
+
         if (import.meta.env.PROD) {
           return;
         }
 
         if (isAxiosError(err)) {
-          console.error(err.response?.data ?? err.stack ?? err.message);
+          console.error(err);
+          // console.error(err.response?.data ?? err.stack ?? err.message);
         } else {
           console.error(err);
         }

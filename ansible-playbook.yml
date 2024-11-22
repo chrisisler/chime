@@ -48,15 +48,9 @@
 
 
     - name: Run caddy HTTPS proxy
-      shell: caddy run --environ --config /etc/caddy/Caddyfile &
+      shell: caddy run --environ --config /etc/caddy/Caddyfile
       async: 0
       poll: 0
-
-
-    - name: Check Caddy is running
-      wait_for:
-        host: localhost
-        port: 443
 
 
     - name: Run app
@@ -71,3 +65,9 @@
       wait_for:
         host: localhost
         port: 5001
+
+
+    - name: Check Caddy is running
+      wait_for:
+        host: localhost
+        port: 443
