@@ -47,6 +47,18 @@
         chdir: /home/azureuser/ChimeCore
 
 
+    - name: Run caddy HTTPS proxy
+      shell: caddy run --environ --config /etc/caddy/Caddyfile &
+      async: 0
+      poll: 0
+
+
+    - name: Check Caddy is running
+      wait_for:
+        host: localhost
+        port: 443
+
+
     - name: Run app
       shell: dotnet ./publish/ChimeCore.dll > /tmp/chime.log 2>&1 &
       args: 
