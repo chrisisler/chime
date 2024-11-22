@@ -52,8 +52,6 @@ builder.Services.AddSingleton<BlobServiceClient>(provider =>
 /*         return provider.GetRequiredService<IConfiguration>(); */
 /*     }); */
 
-// builder.WebHost.UseUrls("http://0.0.0.0:5001", "http://localhost:5001");
-
 builder.Services.AddAntiforgery();
 
 var app = builder.Build();

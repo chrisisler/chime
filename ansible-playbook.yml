@@ -35,17 +35,16 @@
     - name: Configure Caddy reverse proxy for automatic HTTPS
       shell: printf "{{ AZURE_VM_IPV4_ADDR }}.nip.io {\n\treverse_proxy localhost:5001\n}" > /etc/caddy/Caddyfile
 
+    - name: Clear the Publish subdirectory if it exists
+      ansible.builtin.file:
+        path: /home/azureuser/ChimeCore/publish
+        state: absent
+
 
     - name: Publish app
       command: dotnet publish -c Release -o ./publish
       args: 
         chdir: /home/azureuser/ChimeCore
-
-
-    # - name: Run caddy HTTPS proxy
-    #   shell: caddy run --environ --config /etc/caddy/Caddyfile
-    #   async: 0
-    #   poll: 0
 
 
     - name: Run app
