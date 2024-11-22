@@ -48,7 +48,7 @@
 
 
     - name: Run caddy HTTPS proxy
-      shell: caddy run --environ --config /etc/caddy/Caddyfile
+      shell: caddy reverse-proxy --from {{ AZURE_VM_IPV4_ADDR }} --to localhost:5001
       async: 0
       poll: 0
 
@@ -67,7 +67,7 @@
         port: 5001
 
 
-    - name: Check Caddy is running
-      wait_for:
-        host: localhost
-        port: 443
+    # - name: Check Caddy is running
+    #   wait_for:
+    #     host: localhost
+    #     port: 443

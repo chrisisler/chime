@@ -30,8 +30,7 @@ export const queryClient = new QueryClient({
         }
 
         if (isAxiosError(err)) {
-          console.error(err);
-          // console.error(err.response?.data ?? err.stack ?? err.message);
+          console.error(err.response?.data ?? err.stack ?? err.message);
         } else {
           console.error(err);
         }
