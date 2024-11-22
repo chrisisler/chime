@@ -33,7 +33,7 @@
 
 
     - name: Configure Caddy reverse proxy for automatic HTTPS
-      shell: printf "{{ AZURE_VM_IP }}.nip.io {\n\treverse_proxy localhost:5001\n}" > /etc/caddy/Caddyfile
+      shell: printf "{{ AZURE_VM_IPV4_ADDR }}.nip.io {\n\treverse_proxy localhost:5001\n}" > /etc/caddy/Caddyfile
 
 
     - name: Publish app
