@@ -18,10 +18,8 @@ builder.Services.AddCors(opts =>
         "AllowSpecifiedOrigin",
         builder => builder
             .WithOrigins(allowedOrigins)
-            /* .AllowAnyOrigin() // testing */
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials()
     );
 });
 
