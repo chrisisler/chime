@@ -48,7 +48,7 @@
 
 
     - name: Run caddy HTTPS proxy
-      shell: caddy reverse-proxy --from {{ AZURE_VM_IPV4_ADDR }} --to localhost:5001
+      shell: caddy reverse-proxy --from {{ AZURE_VM_IPV4_ADDR }} --to localhost:5001 &
       async: 0
       poll: 0
 
