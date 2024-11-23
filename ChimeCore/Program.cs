@@ -23,16 +23,12 @@ builder.Services.AddCors(opts =>
     );
 });
 
-var connstr = String.Empty;
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.Development.json");
-    connstr = builder.Configuration.GetConnectionString("DefaultConnection");
 }
-else
-{
-    connstr = Environment.GetEnvironmentVariable("DefaultConnection");
-}
+var connstr = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
     opts.UseSqlServer(connstr, sqlOpts =>
     {
