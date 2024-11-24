@@ -53,7 +53,7 @@
 
 
     - name: Run caddy HTTPS proxy
-      shell: caddy run --environ --config /etc/caddy/Caddyfile
+      shell: caddy run --environ --config /etc/caddy/Caddyfile &
       async: 0
       poll: 0
 
