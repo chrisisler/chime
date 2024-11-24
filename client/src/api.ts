@@ -1,5 +1,5 @@
 import { QueryClient, QueryFunctionContext, useQuery, } from '@tanstack/react-query';
-import axios, { AxiosResponse, isAxiosError } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 import { St8 } from './St8';
 import { Item } from './interfaces';
@@ -29,11 +29,7 @@ export const queryClient = new QueryClient({
           return;
         }
 
-        if (isAxiosError(err)) {
-          console.error(err.response?.data ?? err.stack ?? err.message);
-        } else {
-          console.error(err);
-        }
+        console.error(err);
       },
     }
   },
